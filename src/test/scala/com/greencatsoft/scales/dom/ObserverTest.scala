@@ -23,7 +23,7 @@ object ObserverTest extends TestSuite {
     }
 
     js.Object.observe(target, callback)
-    
+
     target.property = 2
     js.Object.deliverChangeRecords(callback)
   }
@@ -31,24 +31,18 @@ object ObserverTest extends TestSuite {
   "Object.unobserve()" should "unregister the specified handler so that it stop being notified about the changes" in {
     val target: js.Dynamic = literal("property" -> 1)
 
-    val callback: js.Function1[js.Array[Change], Unit] = (changes: js.Array[Change]) => {
-      changes should not be (empty)
+    var changed = false
 
-      changes.headOption.foreach { change =>
-        change.name should be ("property")
-        change.`type` should be ("update")
-        change.oldValue should be (1)
-      }
+    val callback: js.Function1[js.Array[Change], Unit] = (changes: js.Array[Change]) => {
+      changed = true
     }
 
     js.Object.observe(target, callback)
+    js.Object.unobserve(target, callback)
 
     target.property = 2
     js.Object.deliverChangeRecords(callback)
 
-    js.Object.unobserve(target, callback)
-
-    target.property = 3
-    js.Object.deliverChangeRecords(callback)
+    changed should be (false)
   }
 }
