@@ -2,47 +2,103 @@ package com.greencatsoft.scales.dom
 
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.literal
+import scala.scalajs.js.annotation.{ JSExport, JSExportAll }
 
 import com.greencatsoft.greenlight.TestSuite
 
-import com.greencatsoft.scales.dom.Observer.asObservable
+import Observer.asObservable
 
 object ObserverTest extends TestSuite {
 
   "Object.observe()" should "observe properties of the given js.Dynamic instance and notify changes" in {
-    val target: js.Dynamic = literal("property" -> 1)
+    val target: js.Dynamic = literal("intValue" -> 1, "stringValue" -> "a")
 
-    val callback: js.Function1[js.Array[Change], Unit] = (changes: js.Array[Change]) => {
-      changes should not be (empty)
-
-      changes.headOption.foreach { change =>
-        change.name should be ("property")
-        change.`type` should be ("update")
-        change.oldValue should be (1)
-      }
-    }
+    var changes: Seq[Change] = Nil
+    val callback: Callback = (c: js.Array[Change]) => changes = c
 
     js.Object.observe(target, callback)
 
-    target.property = 2
+    target.intValue = 2
+
     js.Object.deliverChangeRecords(callback)
+
+    changes should not be (empty)
+
+    changes.headOption foreach { change =>
+      change.name should be ("intValue")
+      change.`type` should be ("update")
+      change.oldValue should be (1)
+    }
+
+    changes = Nil
+
+    target.stringValue = "b"
+
+    js.Object.deliverChangeRecords(callback)
+
+    changes should not be (empty)
+
+    changes.headOption foreach { change =>
+      change.name should be ("stringValue")
+      change.`type` should be ("update")
+      change.oldValue should be ("a")
+    }
+  }
+
+  It should "be able to observe exported properties from a Scala.js object instance" in {
+    val target = new ObserverTestFixture
+
+    var changes: Seq[Change] = Nil
+    val callback: Callback = (c: js.Array[Change]) => changes = c
+
+    js.Object.observe(target, callback)
+
+    target.intValue = 2
+
+    js.Object.deliverChangeRecords(callback)
+
+    changes should not be (empty)
+
+    changes.headOption foreach { change =>
+      change.name should be ("intValue$1")
+      change.`type` should be ("update")
+      change.oldValue should be (1)
+    }
+
+    changes = Nil
+
+    target.stringValue = "b"
+
+    js.Object.deliverChangeRecords(callback)
+
+    changes should not be (empty)
+
+    changes.headOption foreach { change =>
+      change.name should be ("stringValue$1")
+      change.`type` should be ("update")
+      change.oldValue should be ("a")
+    }
   }
 
   "Object.unobserve()" should "unregister the specified handler so that it stop being notified about the changes" in {
     val target: js.Dynamic = literal("property" -> 1)
 
-    var changed = false
-
-    val callback: js.Function1[js.Array[Change], Unit] = (changes: js.Array[Change]) => {
-      changed = true
-    }
+    var changes: Seq[Change] = Nil
+    val callback: Callback = (c: js.Array[Change]) => changes = c
 
     js.Object.observe(target, callback)
     js.Object.unobserve(target, callback)
 
     target.property = 2
+
     js.Object.deliverChangeRecords(callback)
 
-    changed should be (false)
+    changes should be (empty)
   }
+
+  type Callback = js.Function1[js.Array[Change], Unit]
 }
+
+@JSExport
+@JSExportAll
+class ObserverTestFixture(var intValue: Int = 1, var stringValue: String = "a")
