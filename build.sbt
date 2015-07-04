@@ -14,6 +14,9 @@ lazy val root = (project in file(".")).
 	  "org.scala-js" %%% "scala-parser-combinators" % "1.0.2",
 	  "com.greencatsoft" %%% "greenlight" % "0.2-SNAPSHOT" % "test"
     ),
+    jsDependencies in Test ++= Seq(
+      ProvidedJS / "object-observe-lite.min.js"
+    ),
     testFrameworks := new TestFramework("com.greencatsoft.greenlight.Greenlight") :: Nil,
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
