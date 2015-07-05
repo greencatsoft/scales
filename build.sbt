@@ -12,6 +12,7 @@ lazy val root = (project in file(".")).
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.8.1",
 	  "org.scala-js" %%% "scala-parser-combinators" % "1.0.2",
+      "com.lihaoyi" %%% "scalatags" % "0.5.2",
 	  "com.greencatsoft" %%% "greenlight" % "0.2-SNAPSHOT" % "test"
     ),
     jsDependencies in Test ++= Seq(
