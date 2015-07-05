@@ -11,9 +11,9 @@ lazy val root = (project in file(".")).
     resolvers += Resolver.sonatypeRepo("snapshots"),
     libraryDependencies ++= Seq(
       "org.scala-js" %%% "scalajs-dom" % "0.8.1",
-	  "org.scala-js" %%% "scala-parser-combinators" % "1.0.2",
+      "org.scala-js" %%% "scala-parser-combinators" % "1.0.2",
       "com.lihaoyi" %%% "scalatags" % "0.5.2",
-	  "com.greencatsoft" %%% "greenlight" % "0.2-SNAPSHOT" % "test"
+      "com.greencatsoft" %%% "greenlight" % "0.2-SNAPSHOT" % "test"
     ),
     jsDependencies in Test ++= Seq(
       ProvidedJS / "webcomponents.min.js",
@@ -25,9 +25,9 @@ lazy val root = (project in file(".")).
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
       if(isSnapshot.value)
-      	Some("snapshots" at nexus + "content/repositories/snapshots")
+        Some("snapshots" at nexus + "content/repositories/snapshots")
       else
-      	Some("releases" at nexus + "service/local/staging/deploy/maven2")
+        Some("releases" at nexus + "service/local/staging/deploy/maven2")
     },
     publishMavenStyle := true,
     pomIncludeRepository := { _ => false },
