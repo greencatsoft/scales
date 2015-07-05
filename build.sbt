@@ -15,8 +15,11 @@ lazy val root = (project in file(".")).
 	  "com.greencatsoft" %%% "greenlight" % "0.2-SNAPSHOT" % "test"
     ),
     jsDependencies in Test ++= Seq(
-      ProvidedJS / "object-observe-lite.min.js"
+      ProvidedJS / "webcomponents.min.js",
+      ProvidedJS / "object-observe-lite.min.js",
+      RuntimeDOM
     ),
+    scalaJSStage in Test := FastOptStage,
     testFrameworks := new TestFramework("com.greencatsoft.greenlight.Greenlight") :: Nil,
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
