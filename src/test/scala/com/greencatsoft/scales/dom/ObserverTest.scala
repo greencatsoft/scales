@@ -13,8 +13,8 @@ object ObserverTest extends TestSuite {
   "Object.observe()" should "observe properties of the given js.Dynamic instance and notify changes" in {
     val target: js.Dynamic = literal("intValue" -> 1, "stringValue" -> "a")
 
-    var changes: Seq[Change] = Nil
-    val callback: Callback = (c: js.Array[Change]) => changes = c
+    var changes: Seq[ChangeEvent] = Nil
+    val callback: Callback = (c: js.Array[ChangeEvent]) => changes = c
 
     js.Object.observe(target, callback)
 
@@ -48,8 +48,8 @@ object ObserverTest extends TestSuite {
   It should "be able to observe exported properties from a Scala.js object instance" in {
     val target = new ObserverTestFixture
 
-    var changes: Seq[Change] = Nil
-    val callback: Callback = (c: js.Array[Change]) => changes = c
+    var changes: Seq[ChangeEvent] = Nil
+    val callback: Callback = (c: js.Array[ChangeEvent]) => changes = c
 
     js.Object.observe(target, callback)
 
@@ -83,8 +83,8 @@ object ObserverTest extends TestSuite {
   "Object.unobserve()" should "unregister the specified handler so that it stop being notified about the changes" in {
     val target: js.Dynamic = literal("property" -> 1)
 
-    var changes: Seq[Change] = Nil
-    val callback: Callback = (c: js.Array[Change]) => changes = c
+    var changes: Seq[ChangeEvent] = Nil
+    val callback: Callback = (c: js.Array[ChangeEvent]) => changes = c
 
     js.Object.observe(target, callback)
     js.Object.unobserve(target, callback)
@@ -96,7 +96,7 @@ object ObserverTest extends TestSuite {
     changes should be (empty)
   }
 
-  type Callback = js.Function1[js.Array[Change], Unit]
+  type Callback = js.Function1[js.Array[ChangeEvent], Unit]
 }
 
 @JSExport

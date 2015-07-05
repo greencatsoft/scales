@@ -6,16 +6,16 @@ import scala.scalajs.js
 
 trait Observer extends js.Object {
 
-  def observe[A](obj: A, callback: js.Function1[js.Array[Change], Unit]): A = js.native
+  def observe[A](obj: A, callback: js.Function1[js.Array[ChangeEvent], Unit]): A = js.native
 
-  def observe[A](obj: A, callback: js.Function1[js.Array[Change], Unit], acceptList: js.Array[String]): A = js.native
+  def observe[A](obj: A, callback: js.Function1[js.Array[ChangeEvent], Unit], acceptList: js.Array[String]): A = js.native
 
-  def unobserve[A](obj: A, callback: js.Function1[js.Array[Change], Unit]): A = js.native
+  def unobserve[A](obj: A, callback: js.Function1[js.Array[ChangeEvent], Unit]): A = js.native
 
-  def deliverChangeRecords(callback: js.Function1[js.Array[Change], Unit]): Unit = js.native
+  def deliverChangeRecords(callback: js.Function1[js.Array[ChangeEvent], Unit]): Unit = js.native
 }
 
-trait Change extends js.Object {
+trait ChangeEvent extends js.Object {
 
   val name: String = js.native
 
