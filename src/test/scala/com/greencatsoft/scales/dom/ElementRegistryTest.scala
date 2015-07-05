@@ -4,7 +4,6 @@ import scala.scalajs.js
 import scala.scalajs.js.Dynamic.{ global, literal, newInstance }
 
 import org.scalajs.dom.{ document, Node }
-import org.scalajs.dom.html.Div
 
 import com.greencatsoft.greenlight.TestSuite
 
