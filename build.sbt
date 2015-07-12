@@ -62,8 +62,11 @@ lazy val root = (project in file("."))
     unmanagedSourceDirectories in Compile := Nil,
     unmanagedSourceDirectories in Test := Nil,
     mappings in (Compile, packageBin) ++= mappings.in(core, Compile, packageBin).value,
-    mappings in (Compile, packageSrc) ++= mappings.in(core, Compile, packageSrc).value
+    mappings in (Compile, packageSrc) ++= mappings.in(core, Compile, packageSrc).value,
+    mappings in (Compile, packageBin) ++= mappings.in(macro, Compile, packageBin).value,
+    mappings in (Compile, packageSrc) ++= mappings.in(macro, Compile, packageSrc).value
   )
+  .aggregate(core)
 
 lazy val core = (project in file("core"))
   .enablePlugins(ScalaJSPlugin)
@@ -81,5 +84,6 @@ lazy val macro = (project in file("macro"))
   .settings(
     name := "scales-macro",
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "compile")
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "compile"),
+    mappings in (Compile, packageBin) ~= { _.filter(_._1.getName != "JS_DEPENDENCIES") }
   )
