@@ -1,20 +1,23 @@
 package com.greencatsoft.scales.component
 
-import org.scalajs.dom.{ Element, Node }
-
-import scalatags.JsDom.Tag
+import org.scalajs.dom.{ Document, Element, Node }
 
 import com.greencatsoft.scales.dom.Template
 
-trait DOMProvider[A <: Element] extends LifecycleAware {
+import scalatags.JsDom.Tag
+
+trait DOMProvider[A <: Element] extends LifecycleAware[A] {
   this: Component[A] =>
 
-  def build(): Node
+  def build(document: Document): Node
 
-  override def onCreate() {
-    super.onCreate()
+  override def onCreate(element: A) {
+    super.onCreate(element)
 
-    node.appendChild(build)
+    val document = element.ownerDocument
+    val child = build(document)
+
+    element.appendChild(child)
   }
 }
 
@@ -23,12 +26,11 @@ trait TemplateDOMProvider[A <: Element] extends DOMProvider[A] {
 
   def templateSelector: String
 
-  override def build(): Node = {
-    val doc = node.ownerDocument
-    val template = doc.querySelector(templateSelector).asInstanceOf[Template] ensuring (_ != null,
+  override def build(document: Document): Node = {
+    val template = document.querySelector(templateSelector).asInstanceOf[Template] ensuring (_ != null,
       s"Failed to find the specified template node '$templateSelector'.")
 
-    doc.importNode(template.content, true)
+    document.importNode(template.content, true)
   }
 }
 
@@ -37,5 +39,5 @@ trait ScalaTagsDOMProvider[A <: Element] extends DOMProvider[A] {
 
   def template: Tag
 
-  override def build(): Node = node.ownerDocument.importNode(template.render, true)
+  override def build(document: Document): Node = document.importNode(template.render, true)
 }

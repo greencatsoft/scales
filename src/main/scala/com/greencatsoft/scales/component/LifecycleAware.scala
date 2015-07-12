@@ -1,11 +1,13 @@
 package com.greencatsoft.scales.component
 
-trait LifecycleAware {
+import org.scalajs.dom.Element
+
+trait LifecycleAware[A <: Element] {
   this: Component[_] =>
 
-  def onCreate(): Unit = Unit
+  def onCreate(element: A): Unit = Unit
 
-  def onAttach(): Unit = Unit
+  def onAttach(element: A): Unit = Unit
   
-  def onDetach(): Unit = Unit
+  def onDetach(element: A): Unit = Unit
 }

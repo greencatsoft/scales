@@ -1,7 +1,9 @@
 package com.greencatsoft.scales.component
 
-trait AttributeChangeAware {
-  this: Component[_] =>
+import org.scalajs.dom.Element
 
-  def onAttributeChange(name: String, oldValue: Any, newValue: Any): Unit = Unit
+trait AttributeChangeAware[A <: Element] {
+  this: Component[A] =>
+
+  def onAttributeChange(name: String, oldValue: Any, newValue: Any, element: A): Unit = Unit
 }
