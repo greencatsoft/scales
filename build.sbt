@@ -79,5 +79,7 @@ lazy val macro = (project in file("macro"))
   .settings(scalaSettings)
   .settings(scalaJSSettings)
   .settings(
-    name := "scales-macro"
+    name := "scales-macro",
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "compile")
   )
