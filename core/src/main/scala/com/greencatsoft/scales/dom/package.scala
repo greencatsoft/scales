@@ -16,5 +16,8 @@ package object dom {
       document.asInstanceOf[ElementRegistry]
 
     implicit def asObservable(obj: js.Object): Observer = obj.asInstanceOf[Observer]
+
+    implicit def asShadowDOMHost(element: Element): ShadowDOMHost = 
+      element.asInstanceOf[ShadowDOMHost]
   }
 }
