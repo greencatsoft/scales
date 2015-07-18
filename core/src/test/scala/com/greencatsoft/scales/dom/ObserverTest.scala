@@ -6,7 +6,7 @@ import scala.scalajs.js.annotation.{ JSExport, JSExportAll }
 
 import com.greencatsoft.greenlight.TestSuite
 
-import Observer.asObservable
+import ImplicitConversions.asObservable
 
 object ObserverTest extends TestSuite {
 

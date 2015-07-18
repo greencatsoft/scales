@@ -7,7 +7,7 @@ import org.scalajs.dom.{ document, Node }
 
 import com.greencatsoft.greenlight.TestSuite
 
-import ElementRegistry.asElementRegistry
+import ImplicitConversions.asElementRegistry
 
 /**
  * Test suite for document.registerElement() API.

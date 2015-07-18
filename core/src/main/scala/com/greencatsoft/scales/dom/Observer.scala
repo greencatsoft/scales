@@ -1,7 +1,5 @@
 package com.greencatsoft.scales.dom
 
-import scala.language.implicitConversions
-
 import scala.scalajs.js
 
 trait Observer extends js.Object {
@@ -24,9 +22,4 @@ trait ChangeEvent extends js.Object {
   val `type`: String = js.native
 
   val oldValue: Any = js.native
-}
-
-object Observer {
-
-  implicit def asObservable(obj: js.Object): Observer = obj.asInstanceOf[Observer]
 }
