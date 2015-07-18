@@ -1,8 +1,8 @@
-package com.greencatsoft.scales.component
+package com.greencatsoft.scales.component.internal
 
 import scala.scalajs.js.Dictionary
 
-trait Metadata {
+private[component] trait Metadata {
 
   def define(definition: Dictionary[Any] = Dictionary[Any]()): Dictionary[Any]
 }

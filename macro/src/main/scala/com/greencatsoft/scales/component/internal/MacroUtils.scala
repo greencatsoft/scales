@@ -1,10 +1,8 @@
-package com.greencatsoft.scales.component
+package com.greencatsoft.scales.component.internal
 
-import scala.annotation.StaticAnnotation
 import scala.language.experimental.macros
+import scala.annotation.StaticAnnotation
 import scala.reflect.macros.blackbox.Context
-
-import scala.scalajs.js
 
 object MacroUtils {
 

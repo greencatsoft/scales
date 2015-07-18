@@ -6,23 +6,17 @@ import org.scalajs.dom.{ Document, document }
 
 import com.greencatsoft.scales.dom.ElementRegistrationOptions
 import com.greencatsoft.scales.dom.ImplicitConversions.asElementRegistry
+import com.greencatsoft.scales.component.internal.ComponentDefinition
 
 object ComponentRegistry {
 
   def register[A <: Component[_]](implicit doc: Document = document) {
-    val definition = metadata[A]
+    val definition = ComponentDefinition[A]
     val configuration = definition.define()
 
     val prototype = js.Object.create(definition.prototype, configuration)
     val options = ElementRegistrationOptions(Some(prototype), definition.parent)
 
     doc.registerElement(definition.name, options)
-  }
-
-  def metadata[A <: Component[_]]: ComponentDefinition[_, A] = {
-    val name = MacroUtils.getAnnotatedValue[A, name]()
-    val inherit = MacroUtils.getAnnotatedValue[A, inherit]()
-
-    ???
   }
 }

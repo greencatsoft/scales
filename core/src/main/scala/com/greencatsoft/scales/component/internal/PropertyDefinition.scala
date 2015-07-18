@@ -1,14 +1,14 @@
-package com.greencatsoft.scales.component
+package com.greencatsoft.scales.component.internal
 
 import scala.scalajs.js
 import scala.scalajs.js.{ Dictionary, undefined }
 
-import org.scalajs.dom.Element
+import com.greencatsoft.scales.component.Component
 
-case class PropertyDefinition[A <: Element, B <: Component[A], C](
+private[component] case class PropertyDefinition[A <: Component[_], B](
   name: String,
-  getter: js.ThisFunction0[ComponentProxy[A, B], C],
-  setter: Option[js.ThisFunction1[ComponentProxy[A, B], C, Unit]] = None,
+  getter: js.ThisFunction0[ComponentProxy[A], B],
+  setter: Option[js.ThisFunction1[ComponentProxy[A], B, Unit]] = None,
   enumerable: Boolean = false) extends Metadata {
 
   require(name != null && name.length > 0, "Missing argument 'name'.")

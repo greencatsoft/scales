@@ -1,10 +1,11 @@
-package com.greencatsoft.scales.component
+package com.greencatsoft.scales.component.internal
 
 import org.scalajs.dom.Element
 import org.scalajs.dom.html.Div
 import org.scalajs.dom.raw.HTMLInputElement
 
 import com.greencatsoft.greenlight.TestSuite
+import com.greencatsoft.scales.component.{ Component, inherit, name }
 
 object MacroUtilsTest extends TestSuite {
 
