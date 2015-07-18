@@ -1,5 +1,9 @@
 package com.greencatsoft.scales.component
 
+import org.scalajs.dom.Element
+import org.scalajs.dom.html.Div
+import org.scalajs.dom.raw.HTMLInputElement
+
 import com.greencatsoft.greenlight.TestSuite
 
 object MacroUtilsTest extends TestSuite {
@@ -60,4 +64,44 @@ object MacroUtilsTest extends TestSuite {
 
     name should be (Some("cool-component"))
   }
+
+  "MacroUtils.getPrototype[A]" should "return a name of the prototype object for the specified component" in {
+
+    trait MyComponent extends Component[HTMLInputElement]
+
+    val prototype = MacroUtils.getPrototype[MyComponent]
+
+    prototype should be (Some("HTMLInputElement"))
+  }
+
+  It should "resolve a type alias to its base name" in {
+
+    trait MyComponent extends Component[Div]
+
+    val prototype = MacroUtils.getPrototype[MyComponent]
+
+    prototype should be (Some("HTMLDivElement"))
+  }
+
+  It should "find the closest parent which is under the 'org.scalajs.dom' package" in {
+
+    trait MyComponent extends Component[MyDiv]
+
+    val prototype = MacroUtils.getPrototype[MyComponent]
+
+    prototype should be (Some("HTMLDivElement"))
+  }
+
+  It should "be able to handle parametrized types which do not directly implement the Component trait" in {
+
+    trait BaseComponent[A <: Element] extends Component[A]
+    
+    trait MyComponent extends BaseComponent[HTMLInputElement]
+
+    val prototype = MacroUtils.getPrototype[MyComponent]
+
+    prototype should be (Some("HTMLInputElement"))
+  }
+
+  trait MyDiv extends Div
 }

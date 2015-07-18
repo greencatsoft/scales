@@ -4,9 +4,13 @@ import scala.annotation.StaticAnnotation
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox.Context
 
+import scala.scalajs.js
+
 object MacroUtils {
 
   def getAnnotatedValue[A, B <: StaticAnnotation](): Option[String] = macro Impl.getAnnotatedValue[A, B]
+
+  def getPrototype[A](): Option[String] = macro Impl.getPrototype[A]
 
   private object Impl {
 
@@ -33,7 +37,35 @@ object MacroUtils {
 
       find(targetTag.tpe.baseClasses) match {
         case Some(value) =>
-          c.Expr[Option[String]](Apply(Select(Ident(TermName("Some")), TermName("apply")), List(Literal(Constant(value)))))
+          c.Expr[Option[String]] {
+            Apply(Select(Ident(TermName("Some")), TermName("apply")), List(Literal(Constant(value))))
+          }
+        case None => reify(None)
+      }
+    }
+
+    def getPrototype[A](c: Context)()(implicit tag: c.WeakTypeTag[A]): c.Expr[Option[String]] = {
+      import c.universe._
+
+      val component = tag.tpe.baseClasses
+        .map(_.asType)
+        .filter(_.fullName == "com.greencatsoft.scales.component.Component")
+        .map(_.toType)
+
+      val types = component
+        .map(_.member(TermName("element")))
+        .flatMap(_.typeSignatureIn(tag.tpe).baseClasses)
+        .map(_.asType)
+
+      val name = types collectFirst {
+        case tpe if tpe.fullName.startsWith("org.scalajs.dom") => tpe.name.toString
+      }
+
+      name match {
+        case Some(value) =>
+          c.Expr[Option[String]] {
+            Apply(Select(Ident(TermName("Some")), TermName("apply")), List(Literal(Constant(value))))
+          }
         case None => reify(None)
       }
     }
