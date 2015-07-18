@@ -6,7 +6,7 @@ import com.greencatsoft.scales.dom.Template
 
 import scalatags.JsDom.Tag
 
-trait DOMProvider[A <: Element] extends LifecycleAware[A] {
+trait ContentProvider[A <: Element] extends LifecycleAware[A] {
   this: Component[A] =>
 
   def build(document: Document): Node
@@ -17,11 +17,11 @@ trait DOMProvider[A <: Element] extends LifecycleAware[A] {
     val document = element.ownerDocument
     val child = build(document)
 
-    element.appendChild(child)
+    contentRoot.appendChild(child)
   }
 }
 
-trait TemplateDOMProvider[A <: Element] extends DOMProvider[A] {
+trait TemplateContentProvider[A <: Element] extends ContentProvider[A] {
   this: Component[A] =>
 
   def templateSelector: String
@@ -34,7 +34,7 @@ trait TemplateDOMProvider[A <: Element] extends DOMProvider[A] {
   }
 }
 
-trait ScalaTagsDOMProvider[A <: Element] extends DOMProvider[A] {
+trait ScalaTagsDOMProvider[A <: Element] extends ContentProvider[A] {
   this: Component[A] =>
 
   def template: Tag

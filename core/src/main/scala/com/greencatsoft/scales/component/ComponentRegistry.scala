@@ -5,7 +5,7 @@ import scala.scalajs.js
 import org.scalajs.dom.{ Document, document }
 
 import com.greencatsoft.scales.dom.ElementRegistrationOptions
-import com.greencatsoft.scales.dom.ElementRegistry.asElementRegistry
+import com.greencatsoft.scales.dom.ImplicitConversions.asElementRegistry
 
 object ComponentRegistry {
 
@@ -19,5 +19,10 @@ object ComponentRegistry {
     doc.registerElement(definition.name, options)
   }
 
-  def metadata[A <: Component[_]]: ComponentDefinition[_, A] = ???
+  def metadata[A <: Component[_]]: ComponentDefinition[_, A] = {
+    val name = MacroUtils.getAnnotatedValue[A, name]()
+    val inherit = MacroUtils.getAnnotatedValue[A, inherit]()
+
+    ???
+  }
 }
