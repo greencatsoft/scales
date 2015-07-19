@@ -85,4 +85,4 @@ lazy val test = (project in file("test"))
     scalaJSStage in Test := FastOptStage,
     testFrameworks := new TestFramework("com.greencatsoft.greenlight.Greenlight") :: Nil
   )
-  .dependsOn(core)
+  .dependsOn(core % "test->test;compile->compile")

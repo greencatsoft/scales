@@ -1,5 +1,7 @@
 package com.greencatsoft.scales.component.internal
 
+import scala.reflect.macros.blackbox.Context
+
 import scala.scalajs.js
 import scala.scalajs.js.{ Dictionary, undefined, UndefOr }
 import scala.scalajs.js.Dynamic.global
@@ -83,40 +85,7 @@ private[component] object ComponentDefinition {
     "Thrown when the specified type does not have sufficient information to define a component.")
   @throws[InvalidMetadataException](
     "Thrown when the specified type does not have sufficient information to define a component.")
-  def apply[A <: Component[_]]: ComponentDefinition[A] = {
-//    import MacroUtils._
-//
-//    val name = getAnnotatedValue[A, name] getOrElse {
-//      throw new MissingMetadataException(
-//        "The specified component is missing @name annotation.")
-//    }
-//
-//    if (!isValidName(name)) {
-//      throw new InvalidMetadataException(
-//        s"'$name' is not a valid name for a custom component.")
-//    }
-//
-//    val tag = getAnnotatedValue[A, tag]
-//
-//    val typeName = getAnnotatedValue[A, prototype] match {
-//      case v @ Some(_) => v
-//      case None => getPrototype[A]
-//    }
-//
-//    val prototype = typeName
-//      .map(global(_))
-//      .map(_.asInstanceOf[UndefOr[js.Dynamic]])
-//      .map(_.toOption)
-//      .flatten
-//      .map(_.prototype) getOrElse {
-//        console.warn(
-//          "Failed to determine prototype object. Fallback to default ('HTMLElement.prototype').")
-//        global("HTMLElement").prototype
-//      }
-//
-//    ComponentDefinition(name, prototype.asInstanceOf[js.Object], tag, Nil)
-    ???
-  }
+  def apply[A <: Component[_]]: ComponentDefinition[A] = ???
 
   def isValidName(name: String): Boolean = name match {
     case NamePattern(_*) => true
@@ -124,4 +93,37 @@ private[component] object ComponentDefinition {
   }
 
   def isReservedName(name: String): Boolean = ReservedNames.contains(name)
+
+  object Macros {
+
+    def getPrototype[A](c: Context)()(implicit tag: c.WeakTypeTag[A]): Option[String] = {
+      import c.universe._
+
+      val component = tag.tpe.baseClasses
+        .map(_.asType)
+        .filter(_.fullName == "com.greencatsoft.scales.component.Component")
+        .map(_.toType)
+
+      val types = component
+        .map(_.member(TermName("element")))
+        .flatMap(_.typeSignatureIn(tag.tpe).baseClasses)
+        .map(_.asType)
+
+      types collectFirst {
+        case tpe if tpe.fullName.startsWith("org.scalajs.dom") => tpe.name.toString
+      }
+    }
+
+    def getPrototypeExpr[A](c: Context)()(implicit tag: c.WeakTypeTag[A]): c.Expr[Option[String]] = {
+      import c.universe._
+
+      getPrototype[A](c) match {
+        case Some(value) =>
+          c.Expr[Option[String]] {
+            Apply(Select(Ident(TermName("Some")), TermName("apply")), List(Literal(Constant(value))))
+          }
+        case None => reify(None)
+      }
+    }
+  }
 }
