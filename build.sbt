@@ -36,16 +36,9 @@ val scalaJSSettings = Seq(
   libraryDependencies ++= Seq(
     "org.scala-js" %%% "scalajs-dom" % "0.8.1",
     "org.scala-js" %%% "scala-parser-combinators" % "1.0.2",
-    "com.lihaoyi" %%% "scalatags" % "0.5.2",
-    "com.greencatsoft" %%% "greenlight" % "0.2-SNAPSHOT" % "test"
-  ),
-  jsDependencies in Test ++= Seq(
-    ProvidedJS / "webcomponents.min.js",
-    ProvidedJS / "object-observe-lite.min.js",
-    RuntimeDOM
-  ),
-  scalaJSStage in Test := FastOptStage,
-  testFrameworks := new TestFramework("com.greencatsoft.greenlight.Greenlight") :: Nil)
+    "com.lihaoyi" %%% "scalatags" % "0.5.2"
+  )
+)
 
 lazy val root = (project in file("."))
   .settings(scalaSettings)
@@ -62,28 +55,34 @@ lazy val root = (project in file("."))
     unmanagedSourceDirectories in Compile := Nil,
     unmanagedSourceDirectories in Test := Nil,
     mappings in (Compile, packageBin) ++= mappings.in(core, Compile, packageBin).value,
-    mappings in (Compile, packageSrc) ++= mappings.in(core, Compile, packageSrc).value,
-    mappings in (Compile, packageBin) ++= mappings.in(macro, Compile, packageBin).value,
-    mappings in (Compile, packageSrc) ++= mappings.in(macro, Compile, packageSrc).value
+    mappings in (Compile, packageSrc) ++= mappings.in(core, Compile, packageSrc).value
   )
-  .aggregate(core)
+  .aggregate(test, core)
 
 lazy val core = (project in file("core"))
   .enablePlugins(ScalaJSPlugin)
   .settings(scalaSettings)
   .settings(scalaJSSettings)
   .settings(
-    name := "scales-core"
+    name := "scales-core",
+    libraryDependencies ++= Seq(
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "compile")
   )
- .dependsOn(macro)
 
-lazy val macro = (project in file("macro"))
+lazy val test = (project in file("test"))
   .enablePlugins(ScalaJSPlugin)
   .settings(scalaSettings)
   .settings(scalaJSSettings)
   .settings(
-    name := "scales-macro",
+    name := "scales-test",
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "compile"),
-    mappings in (Compile, packageBin) ~= { _.filter(_._1.getName != "JS_DEPENDENCIES") }
+      "com.greencatsoft" %%% "greenlight" % "0.2-SNAPSHOT" % "test"),
+    jsDependencies in Test ++= Seq(
+      ProvidedJS / "webcomponents.min.js",
+      ProvidedJS / "object-observe-lite.min.js",
+      RuntimeDOM
+    ),
+    scalaJSStage in Test := FastOptStage,
+    testFrameworks := new TestFramework("com.greencatsoft.greenlight.Greenlight") :: Nil
   )
+  .dependsOn(core)
