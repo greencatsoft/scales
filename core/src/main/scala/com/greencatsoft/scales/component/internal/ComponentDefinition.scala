@@ -96,12 +96,12 @@ private[component] object ComponentDefinition {
 
   object Macros {
 
-    def getPrototype[A](c: Context)()(implicit tag: c.WeakTypeTag[A]): Option[String] = {
+    def getPrototype[A <: Component[_]](c: Context)()(implicit tag: c.WeakTypeTag[A]): Option[String] = {
       import c.universe._
 
       val component = tag.tpe.baseClasses
         .map(_.asType)
-        .filter(_.fullName == "com.greencatsoft.scales.component.Component")
+        .filter(_.fullName == classOf[Component[_]].getName)
         .map(_.toType)
 
       val types = component
@@ -114,7 +114,7 @@ private[component] object ComponentDefinition {
       }
     }
 
-    def getPrototypeExpr[A](c: Context)()(implicit tag: c.WeakTypeTag[A]): c.Expr[Option[String]] = {
+    def getPrototypeExpr[A <: Component[_]](c: Context)()(implicit tag: c.WeakTypeTag[A]): c.Expr[Option[String]] = {
       import c.universe._
 
       getPrototype[A](c) match {
