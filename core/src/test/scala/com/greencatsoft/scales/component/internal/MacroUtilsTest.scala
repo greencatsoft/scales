@@ -2,10 +2,10 @@ package com.greencatsoft.scales.component.internal
 
 import org.scalajs.dom.Element
 import org.scalajs.dom.html.Div
-import org.scalajs.dom.raw.HTMLInputElement
+import org.scalajs.dom.raw.{ HTMLElement, HTMLInputElement }
 
 import com.greencatsoft.greenlight.TestSuite
-import com.greencatsoft.scales.component.{ Component, inherit, name }
+import com.greencatsoft.scales.component.{ Component, name, tag }
 
 object MacroUtilsTest extends TestSuite {
 
@@ -31,11 +31,11 @@ object MacroUtilsTest extends TestSuite {
   It should "be able to handle multiple annotations" in {
 
     @name("cool-component")
-    @inherit("parent-component")
+    @tag("parent-component")
     class CoolComponent
 
     val name = MacroUtils.getAnnotatedValue[CoolComponent, name]
-    val parent = MacroUtils.getAnnotatedValue[CoolComponent, inherit]
+    val parent = MacroUtils.getAnnotatedValue[CoolComponent, tag]
 
     name should be (Some("cool-component"))
     parent should be (Some("parent-component"))
@@ -86,17 +86,17 @@ object MacroUtilsTest extends TestSuite {
 
   It should "find the closest parent which is under the 'org.scalajs.dom' package" in {
 
-    trait MyComponent extends Component[MyDiv]
+    trait MyComponent extends Component[HTMLElement]
 
     val prototype = MacroUtils.getPrototype[MyComponent]
 
-    prototype should be (Some("HTMLDivElement"))
+    prototype should be (Some("HTMLElement"))
   }
 
   It should "be able to handle parametrized types which do not directly implement the Component trait" in {
 
     trait BaseComponent[A <: Element] extends Component[A]
-    
+
     trait MyComponent extends BaseComponent[HTMLInputElement]
 
     val prototype = MacroUtils.getPrototype[MyComponent]

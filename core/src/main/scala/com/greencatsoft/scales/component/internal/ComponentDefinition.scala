@@ -1,24 +1,23 @@
 package com.greencatsoft.scales.component.internal
 
 import scala.scalajs.js
-import scala.scalajs.js.{ Dictionary, undefined }
+import scala.scalajs.js.{ Dictionary, undefined, UndefOr }
 import scala.scalajs.js.Dynamic.global
 
-import org.scalajs.dom.Element
+import org.scalajs.dom.{ console, Element }
 
-import com.greencatsoft.scales.component.{ AttributeChangeAware, Component, inherit, name }
+import com.greencatsoft.scales.component._
 import com.greencatsoft.scales.di.{ Scope, ServiceFactory }
 
 private[component] case class ComponentDefinition[A <: Component[_]](
   name: String,
   prototype: js.Object,
-  parent: Option[String],
+  tag: Option[String],
   properties: Seq[PropertyDefinition[A, _]]) extends Metadata {
 
-  require(name != null && name.length > 0, "Missing argument 'name'.")
-  require(name.contains("-"), "Component name should contain a dash('-') character.")
+  require(name != null, "Missing argument 'name'.")
   require(prototype != null, "Missing argument 'prototype'.")
-  require(parent != null, "Missing argument 'parent'.")
+  require(tag != null, "Missing argument 'tag'.")
   require(properties != null, "Missing argument 'properties'.")
 
   override def define(definition: Dictionary[Any] = Dictionary[Any]()): Dictionary[Any] = properties match {
@@ -73,14 +72,55 @@ private[component] case class ComponentDefinition[A <: Component[_]](
   }
 }
 
-object ComponentDefinition {
+private[component] object ComponentDefinition {
 
+  private val NamePattern = "^[a-z]-[a-z]$".r
+
+  private val ReservedNames = Set("annotation-xml", "color-profile", "font-face", "font-face-src",
+    "font-face-uri", "font-face-format", "font-face-name", "missing-glyph")
+
+  @throws[MissingMetadataException](
+    "Thrown when the specified type does not have sufficient information to define a component.")
+  @throws[InvalidMetadataException](
+    "Thrown when the specified type does not have sufficient information to define a component.")
   def apply[A <: Component[_]]: ComponentDefinition[A] = {
-    val name = MacroUtils.getAnnotatedValue[A, name]
-    val inherit = MacroUtils.getAnnotatedValue[A, inherit]
+    import MacroUtils._
 
-    val prototype = MacroUtils.getPrototype[A].map(global(_).prototype)
+    val name = getAnnotatedValue[A, name] getOrElse {
+      throw new MissingMetadataException(
+        "The specified component is missing @name annotation.")
+    }
 
-    ???
+    if (!isValidName(name)) {
+      throw new InvalidMetadataException(
+        s"'$name' is not a valid name for a custom component.")
+    }
+
+    val tag = getAnnotatedValue[A, tag]
+
+    val typeName = getAnnotatedValue[A, prototype] match {
+      case v @ Some(_) => v
+      case None => getPrototype[A]
+    }
+
+    val prototype = typeName
+      .map(global(_))
+      .map(_.asInstanceOf[UndefOr[js.Dynamic]])
+      .map(_.toOption)
+      .flatten
+      .map(_.prototype) getOrElse {
+        console.warn(
+          "Failed to determine prototype object. Fallback to default ('HTMLElement.prototype').")
+        global("HTMLElement").prototype
+      }
+
+    ComponentDefinition(name, prototype.asInstanceOf[js.Object], tag, Nil)
   }
+
+  def isValidName(name: String): Boolean = name match {
+    case NamePattern(_*) => true
+    case _ => false
+  }
+
+  def isReservedName(name: String): Boolean = ReservedNames.contains(name)
 }
