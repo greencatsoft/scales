@@ -7,23 +7,11 @@ import org.scalajs.dom.raw.{ HTMLElement, HTMLInputElement }
 import com.greencatsoft.greenlight.TestSuite
 import com.greencatsoft.scales.component.{ Component, name }
 
-object ComponentDefinitionTest extends TestSuite {
+object ComponentRegistryImplTest extends TestSuite {
 
-  import ComponentDefinitionFixture._
+  import ComponentRegistryImplFixture._
 
-  "ComponentDefinition[A]" might "return component metadata of the specified type" in {
-
-    @name("my-component")
-    trait MyComponent extends Component[Element]
-
-    val definition = ComponentDefinition[MyComponent]
-
-    definition.name should be ("my-component")
-    definition.prototype should not be (empty)
-    definition.tag should be (empty)
-  }
-
-  "ComponentDefinition.Macros.getPrototype[A]" should "return a name of the prototype object for the specified component" in {
+  "ComponentRegistryImpl.getPrototype[A]" should "return a name of the prototype object for the specified component" in {
 
     trait MyComponent extends Component[HTMLInputElement]
 

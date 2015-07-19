@@ -5,9 +5,7 @@ import scala.annotation.StaticAnnotation
 
 import com.greencatsoft.scales.component.Component
 
-object ComponentDefinitionFixture {
+object ComponentRegistryImplFixture {
 
-  import ComponentDefinition.Macros
-
-  def getPrototype[A <: Component[_]](): Option[String] = macro Macros.getPrototypeExpr[A]
+  def getPrototype[A <: Component[_]](): Option[String] = macro ComponentRegistryImpl.getPrototypeExpr[A]
 }
