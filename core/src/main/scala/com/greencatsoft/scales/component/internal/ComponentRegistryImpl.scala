@@ -4,28 +4,47 @@ import scala.reflect.macros.blackbox.Context
 
 import org.scalajs.dom.Document
 
-import com.greencatsoft.scales.component.{ Component, name }
+import com.greencatsoft.scales.component.{ Component, name, prototype }
 import com.greencatsoft.scales.macros.AnnotationUtils
 
 private[component] object ComponentRegistryImpl {
 
-  private val NamePattern = "^[a-z]-[a-z]$".r
-
-  private val ReservedNames = Set("annotation-xml", "color-profile", "font-face", "font-face-src",
-    "font-face-uri", "font-face-format", "font-face-name", "missing-glyph")
-
-  def isValidName(name: String): Boolean = name match {
-    case NamePattern(_*) => true
-    case _ => false
-  }
-
-  def isReservedName(name: String): Boolean = ReservedNames.contains(name)
-
-  def register[A](c: Context)(doc: c.Expr[Document])(implicit tag: c.WeakTypeTag[A]): c.Expr[Option[String]] = {
+  def register[A <: Component[_]](c: Context)(doc: c.Expr[Document])(implicit tag: c.WeakTypeTag[A]): c.Expr[Option[String]] = {
     import c.universe._
 
-    val name = AnnotationUtils.getValue[A, name](c)
-    ???
+    val name = AnnotationUtils.getValueExpr[A, name](c)()(tag, typeTag[name])
+    val prototype = AnnotationUtils.getValueExpr[A, prototype](c)()(tag, typeTag[prototype])
+
+    val constructor = q"""
+      import com.greencatsoft.scales.component._
+      import com.greencatsoft.scales.component.internal._
+
+      val name = {..$name} getOrElse {
+        throw new MissingMetadataException(
+          "The specified component does not have a '@name' annotation.")
+      }
+
+      if (!ComponentDefinition.isValidName(name)) {
+        throw new InvalidMetadataException(
+          s"'$$name' is not a valid name for a custom element.")
+      }
+
+      if (ComponentDefinition.isReservedName(name)) {
+        throw new InvalidMetadataException(s"'$$name' is a reserved name.")
+      }
+
+    //    val definition = ComponentDefinition[A](name, prototype, tag, properties)
+    //    val configuration = definition.define()
+    //
+    //    val prototype = js.Object.create(definition.prototype, configuration)
+    //    val options = ElementRegistrationOptions(Some(prototype), definition.tag)
+    //
+    //    doc.registerElement(definition.name, options)
+
+      None
+    """
+
+    c.Expr[Option[String]](constructor)
   }
 
   def getPrototype[A <: Component[_]](c: Context)()(implicit tag: c.WeakTypeTag[A]): Option[String] = {

@@ -70,3 +70,19 @@ private[component] case class ComponentDefinition[A <: Component[_]](
     definition
   }
 }
+
+private[component] object ComponentDefinition {
+
+  private val NamePattern = "^[a-z]-[a-z]$".r
+
+  private val ReservedNames = Set("annotation-xml", "color-profile", "font-face", "font-face-src",
+    "font-face-uri", "font-face-format", "font-face-name", "missing-glyph")
+
+  def isValidName(name: String): Boolean = name match {
+    case NamePattern(_*) => true
+    case _ => false
+  }
+
+  def isReservedName(name: String): Boolean = ReservedNames.contains(name)
+}
+
