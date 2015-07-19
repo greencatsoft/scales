@@ -20,7 +20,7 @@ private[scales] object AnnotationUtils {
         arg collectFirst {
           case List(Literal(Constant(literal: String))) => literal
         } match {
-          case Some(s) => Some(s)
+          case s @ Some(_) => s
           case _ => find(tail)
         }
       case _ => None
