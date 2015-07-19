@@ -3,7 +3,7 @@ package com.greencatsoft.scales.macros
 import scala.annotation.StaticAnnotation
 import scala.reflect.macros.blackbox.Context
 
-object AnnotationUtils {
+private[scales] object AnnotationUtils {
 
   def getValue[A, B <: StaticAnnotation](c: Context)()(
     implicit targetTag: c.WeakTypeTag[A], annotationTag: c.WeakTypeTag[B]): Option[String] = {
