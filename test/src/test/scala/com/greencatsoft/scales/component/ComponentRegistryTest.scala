@@ -22,34 +22,34 @@ object ComponentRegistryTest extends TestSuite {
 
   It should "throw an InvalidMetadataException when the specified name is not valid per specification" in {
 
-    @name("nodash")
-    trait BadComponent extends Component[Element]
-
-    @name("1337-name!")
-    trait AnotherBadComponent extends Component[Element]
-
     An_[InvalidMetadataException] should be_thrown_in {
+      @name("nodash")
+      trait BadComponent extends Component[Element]
+
       ComponentRegistry.register[BadComponent]
     }
 
     An_[InvalidMetadataException] should be_thrown_in {
+      @name("1337-name!")
+      trait AnotherBadComponent extends Component[Element]
+
       ComponentRegistry.register[AnotherBadComponent]
     }
   }
 
   It should "throw an InvalidMetadataException when the specified component has a reserved name" in {
 
-    @name("font-face")
-    trait BadComponent extends Component[Element]
-
-    @name("missing-glyph")
-    trait AnotherBadComponent extends Component[Element]
-
     An_[InvalidMetadataException] should be_thrown_in {
+      @name("font-face")
+      trait BadComponent extends Component[Element]
+
       ComponentRegistry.register[BadComponent]
     }
 
     An_[InvalidMetadataException] should be_thrown_in {
+      @name("missing-glyph")
+      trait AnotherBadComponent extends Component[Element]
+
       ComponentRegistry.register[AnotherBadComponent]
     }
   }
