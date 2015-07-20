@@ -1,9 +1,10 @@
 package com.greencatsoft.scales.component.internal
 
 import scala.scalajs.js
-import scala.scalajs.js.{ Dictionary, undefined }
+import scala.scalajs.js.{ Dictionary, undefined, UndefOr }
+import scala.scalajs.js.Dynamic.global
 
-import org.scalajs.dom.Element
+import org.scalajs.dom.{ console, Element }
 
 import com.greencatsoft.scales.component.{ AttributeChangeAware, Component }
 import com.greencatsoft.scales.di.{ Scope, ServiceFactory }
@@ -84,5 +85,21 @@ private[component] object ComponentDefinition {
   }
 
   def isReservedName(name: String): Boolean = ReservedNames.contains(name)
+
+  def prototype(name: Option[String]): js.Object = {
+    val value: UndefOr[js.Dynamic] = name match {
+      case Some(n) => global.selectDynamic(n)
+      case None => undefined
+    }
+
+    val resolved = value getOrElse {
+      console.warn(
+        s"Failed to resolve prototype object for '$name'. Falling back to default ('HTMLElement').")
+
+      global.selectDynamic("HTMLElement")
+    }
+
+    resolved.prototype.asInstanceOf[js.Object]
+  }
 }
 
