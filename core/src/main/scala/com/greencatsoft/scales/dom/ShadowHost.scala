@@ -5,7 +5,7 @@ import scala.scalajs.js.UndefOr
 
 import org.scalajs.dom.{ Element, NodeList }
 
-trait ShadowDOMHost extends js.Object {
+trait ShadowHost extends js.Object {
   this: Element =>
 
   def createShadowRoot(): ShadowRoot = js.native

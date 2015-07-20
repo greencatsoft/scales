@@ -2,7 +2,7 @@ package com.greencatsoft.scales.query
 
 import org.scalajs.dom.Element
 
-import com.greencatsoft.scales.dom.ImplicitConversions.asShadowDOMHost
+import com.greencatsoft.scales.dom.ImplicitConversions.asShadowHost
 
 trait ShadowNodeProvider[A <: Element] extends NodeProvider[A] {
 
