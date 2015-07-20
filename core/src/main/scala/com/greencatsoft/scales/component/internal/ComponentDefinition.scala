@@ -1,7 +1,7 @@
 package com.greencatsoft.scales.component.internal
 
 import scala.scalajs.js
-import scala.scalajs.js.{ Dictionary, undefined, UndefOr }
+import scala.scalajs.js.{ undefined, UndefOr }
 import scala.scalajs.js.Dynamic.global
 
 import org.scalajs.dom.{ console, Element }
@@ -20,12 +20,12 @@ private[component] case class ComponentDefinition[A <: Component[_]](
   require(tag != null, "Missing argument 'tag'.")
   require(properties != null, "Missing argument 'properties'.")
 
-  override def define(definition: Dictionary[Any] = Dictionary[Any]()): Dictionary[Any] = properties match {
-    case head :: tail => tail.foldLeft(head.define(defineCallbacks(definition)))((d, p) => p.define(d))
-    case _ => defineCallbacks(definition)
+  override def define(prototype: js.Dynamic): js.Dynamic = properties match {
+    case head :: tail => tail.foldLeft(head.define(defineCallbacks(prototype)))((d, p) => p.define(d))
+    case _ => defineCallbacks(prototype)
   }
 
-  def defineCallbacks(definition: Dictionary[Any]): Dictionary[Any] = {
+  def defineCallbacks(prototype: js.Dynamic): js.Dynamic = {
     val createdCallback: js.ThisFunction0[ComponentProxy[A], Unit] =
       (proxy: ComponentProxy[A]) => {
         val element = proxy.asInstanceOf[Element]
@@ -63,12 +63,12 @@ private[component] case class ComponentDefinition[A <: Component[_]](
           case _ =>
         }
 
-    definition("createdCallback") = createdCallback
-    definition("attachedCallback") = attachedCallback
-    definition("detachedCallback") = detachedCallback
-    definition("attributeChangedCallback") = attributeChangedCallback
+    prototype.createdCallback = createdCallback
+    prototype.attachedCallback = attachedCallback
+    prototype.detachedCallback = detachedCallback
+    prototype.attributeChangedCallback = attributeChangedCallback
 
-    definition
+    prototype
   }
 }
 

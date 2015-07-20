@@ -1,7 +1,9 @@
 package com.greencatsoft.scales.component.internal
 
+import scala.language.implicitConversions
+
 import scala.scalajs.js
-import scala.scalajs.js.{ Dictionary, undefined }
+import scala.scalajs.js.{ Dictionary, PropertyDescriptor, undefined }
 
 import com.greencatsoft.scales.component.Component
 
@@ -15,13 +17,18 @@ private[component] case class PropertyDefinition[A <: Component[_], B](
   require(getter != null, "Missing argument 'getter'.")
   require(setter != null, "Missing argument 'setter'.")
 
-  override def define(definition: Dictionary[Any] = Dictionary[Any]()): Dictionary[Any] = {
-    definition(name) = Dictionary[Any](
+  override def define(prototype: js.Dynamic): js.Dynamic = {
+    implicit def asObject(d: js.Dynamic): js.Object = d.asInstanceOf[js.Object]
+    implicit def asDynamic(o: js.Object): js.Dynamic = o.asInstanceOf[js.Dynamic]
+
+    val definition = Dictionary[Any](
       "get" -> getter,
       "set" -> { setter getOrElse undefined },
       "configurable" -> false,
       "enumerable" -> enumerable)
 
-    definition
+    val descriptor = definition.asInstanceOf[PropertyDescriptor]
+
+    js.Object.defineProperty(prototype, name, descriptor)
   }
 }

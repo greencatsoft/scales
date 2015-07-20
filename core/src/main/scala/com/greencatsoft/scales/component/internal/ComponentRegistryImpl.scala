@@ -62,7 +62,9 @@ private[component] object ComponentRegistryImpl extends LowPriorityImplicits {
   }
 
   def registerDefinition[A <: Component[_]](definition: ComponentDefinition[A], doc: Document): Function0[A] = {
-    val prototype = js.Object.create(definition.prototype, definition.define())
+    val parent = js.Object.create(definition.prototype).asInstanceOf[js.Dynamic]
+    val prototype = definition.define(parent).asInstanceOf[js.Object]
+
     val options = ElementRegistrationOptions(Some(prototype), definition.tag)
 
     val constructor = doc.registerElement(definition.name, options)
