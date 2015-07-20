@@ -15,6 +15,7 @@ object ComponentRegistryTest extends TestSuite {
     val constructor = ComponentRegistry.register[MyComponent]
 
     constructor should not be (empty)
+    constructor() should not be (empty)
   }
 
   It should "throw a MissingMetadataException when the specified class does not have a '@name' annotation" in {

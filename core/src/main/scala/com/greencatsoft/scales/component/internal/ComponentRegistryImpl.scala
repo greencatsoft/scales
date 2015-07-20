@@ -34,6 +34,17 @@ private[component] object ComponentRegistryImpl extends LowPriorityImplicits {
 
     val tpe = List(t.tpe)
 
+    val methods = t.tpe.members collectFirst {
+      case m: MethodSymbol if m.isPrimaryConstructor => m
+    }
+
+    val ctor = methods getOrElse {
+      c.abort(c.enclosingPosition, s"The specified type '${t.tpe}' does not have a suitable constructor.")
+    }
+
+    // Should be delegated to a proper DI container(ServiceFactory) later . 
+    val factory = Apply(Select(New(Ident(t.tpe.typeSymbol)), termNames.CONSTRUCTOR), Nil)
+
     val constructor = q"""
       import com.greencatsoft.scales.component._
       import com.greencatsoft.scales.component.internal._
@@ -53,7 +64,8 @@ private[component] object ComponentRegistryImpl extends LowPriorityImplicits {
       }
 
       val prototype = ComponentDefinition.prototype({..$prototype})
-      val definition = ComponentDefinition[..$tpe](name, prototype, {..$tag}, Nil)
+      val factory = () => {..$factory}
+      val definition = ComponentDefinition[..$tpe](name, prototype, {..$tag}, Nil, factory)
 
       ComponentRegistryImpl.registerDefinition(definition, ..$doc)
     """
@@ -68,7 +80,6 @@ private[component] object ComponentRegistryImpl extends LowPriorityImplicits {
     val options = ElementRegistrationOptions(Some(prototype), definition.tag)
 
     val constructor = doc.registerElement(definition.name, options)
-
 
     () => {
       val proxy = newInstance(constructor)().asInstanceOf[ComponentProxy[A]]

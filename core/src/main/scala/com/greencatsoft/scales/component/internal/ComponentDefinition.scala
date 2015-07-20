@@ -7,18 +7,19 @@ import scala.scalajs.js.Dynamic.global
 import org.scalajs.dom.{ console, Element }
 
 import com.greencatsoft.scales.component.{ AttributeChangeAware, Component }
-import com.greencatsoft.scales.di.{ Scope, ServiceFactory }
 
 private[component] case class ComponentDefinition[A <: Component[_]](
   name: String,
   prototype: js.Object,
   tag: Option[String],
-  properties: Seq[PropertyDefinition[A, _]]) extends Metadata {
+  properties: Seq[PropertyDefinition[A, _]],
+  factory: () => A) extends Metadata {
 
   require(name != null, "Missing argument 'name'.")
   require(prototype != null, "Missing argument 'prototype'.")
   require(tag != null, "Missing argument 'tag'.")
   require(properties != null, "Missing argument 'properties'.")
+  require(factory != null, "Missing argument 'factory'.")
 
   override def define(prototype: js.Dynamic): js.Dynamic = properties match {
     case head :: tail => tail.foldLeft(head.define(defineCallbacks(prototype)))((d, p) => p.define(d))
@@ -29,7 +30,7 @@ private[component] case class ComponentDefinition[A <: Component[_]](
     val createdCallback: js.ThisFunction0[ComponentProxy[A], Unit] =
       (proxy: ComponentProxy[A]) => {
         val element = proxy.asInstanceOf[Element]
-        val component = ServiceFactory.newInstance[A](Scope(element))
+        val component = factory()
 
         proxy.component = component
 
