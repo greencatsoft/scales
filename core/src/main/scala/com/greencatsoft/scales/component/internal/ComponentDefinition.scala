@@ -73,7 +73,7 @@ private[component] case class ComponentDefinition[A <: Component[_]](
 
 private[component] object ComponentDefinition {
 
-  private val NamePattern = "^[a-z]-[a-z]$".r
+  private val NamePattern = "^([a-zA-Z0-9]+)-([a-zA-Z0-9]+)(-([a-zA-Z0-9]+))*$".r
 
   private val ReservedNames = Set("annotation-xml", "color-profile", "font-face", "font-face-src",
     "font-face-uri", "font-face-format", "font-face-name", "missing-glyph")
