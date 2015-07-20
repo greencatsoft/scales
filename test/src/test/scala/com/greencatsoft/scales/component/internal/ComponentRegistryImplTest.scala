@@ -13,7 +13,7 @@ object ComponentRegistryImplTest extends TestSuite {
 
   "ComponentRegistryImpl.getPrototype[A]" should "return a name of the prototype object for the specified component" in {
 
-    trait MyComponent extends Component[HTMLInputElement]
+    class MyComponent extends Component[HTMLInputElement]
 
     val prototype = getPrototype[MyComponent]
 
@@ -22,7 +22,7 @@ object ComponentRegistryImplTest extends TestSuite {
 
   It should "resolve a type alias to its base name" in {
 
-    trait MyComponent extends Component[Div]
+    class MyComponent extends Component[Div]
 
     val prototype = getPrototype[MyComponent]
 
@@ -31,7 +31,7 @@ object ComponentRegistryImplTest extends TestSuite {
 
   It should "find the closest parent which is under the 'org.scalajs.dom' package" in {
 
-    trait MyComponent extends Component[HTMLElement]
+    class MyComponent extends Component[HTMLElement]
 
     val prototype = getPrototype[MyComponent]
 
@@ -40,14 +40,14 @@ object ComponentRegistryImplTest extends TestSuite {
 
   It should "be able to handle parametrized types which do not directly implement the Component trait" in {
 
-    trait BaseComponent[A <: Element] extends Component[A]
+    class BaseComponent[A <: Element] extends Component[A]
 
-    trait MyComponent extends BaseComponent[HTMLInputElement]
+    class MyComponent extends BaseComponent[HTMLInputElement]
 
     val prototype = getPrototype[MyComponent]
 
     prototype should be (Some("HTMLInputElement"))
   }
 
-  trait MyDiv extends Div
+  class MyDiv extends Div
 }
