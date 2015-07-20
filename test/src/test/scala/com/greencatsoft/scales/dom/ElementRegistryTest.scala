@@ -7,13 +7,11 @@ import org.scalajs.dom.{ document, Node }
 
 import com.greencatsoft.greenlight.TestSuite
 
-import ImplicitConversions.asElementRegistry
-
 /**
  * Test suite for document.registerElement() API.
  * Only works with PhantomJS 2.0 for now.
  */
-object ElementRegistryTest extends TestSuite {
+object ElementRegistryTest extends TestSuite with LowPriorityImplicits {
 
   "Document.registerElement(name)" should "register a custom component with the given name" in {
     An_[Exception] should not be_thrown_in {

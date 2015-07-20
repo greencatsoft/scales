@@ -6,9 +6,7 @@ import scala.scalajs.js.annotation.{ JSExport, JSExportAll }
 
 import com.greencatsoft.greenlight.TestSuite
 
-import ImplicitConversions.asObservable
-
-object ObserverTest extends TestSuite {
+object ObserverTest extends TestSuite with LowPriorityImplicits {
 
   "Object.observe()" should "observe properties of the given js.Dynamic instance and notify changes" in {
     val target: js.Dynamic = literal("intValue" -> 1, "stringValue" -> "a")
