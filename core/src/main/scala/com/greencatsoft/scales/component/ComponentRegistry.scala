@@ -14,5 +14,5 @@ object ComponentRegistry {
     "Thrown when the specified type does not have sufficient information to define a component.")
   @throws[DuplicateDefinitionException](
     "Thrown when the specified type does not have sufficient information to define a component.")
-  def register[A <: Component[_]](implicit doc: Document): Option[String] = macro ComponentRegistryImpl.register[A]
+  def register[A <: Component[_]](implicit doc: Document): Function0[A] = macro ComponentRegistryImpl.register[A]
 }

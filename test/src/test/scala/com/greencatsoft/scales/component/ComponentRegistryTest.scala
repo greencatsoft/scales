@@ -1,6 +1,6 @@
 package com.greencatsoft.scales.component
 
-import org.scalajs.dom.{ document, Element }
+import org.scalajs.dom.{ Element, document }
 
 import com.greencatsoft.greenlight.TestSuite
 
@@ -8,7 +8,13 @@ object ComponentRegistryTest extends TestSuite {
 
   implicit val doc = document
 
-  "ComponentRegistry.register[A]" might "create a component definition for the given type and register it" in {
+  "ComponentRegistry.register[A]" should "create a component definition for the given type and register it" in {
+    @name("my-component")
+    trait MyComponent extends Component[Element]
+
+    val constructor = ComponentRegistry.register[MyComponent]
+
+    constructor should not be (empty)
   }
 
   It should "throw a MissingMetadataException when the specified class does not have a '@name' annotation" in {

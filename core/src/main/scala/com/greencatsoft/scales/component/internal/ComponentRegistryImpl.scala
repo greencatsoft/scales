@@ -2,18 +2,37 @@ package com.greencatsoft.scales.component.internal
 
 import scala.reflect.macros.blackbox.Context
 
+import scala.scalajs.js
+import scala.scalajs.js.Dynamic.newInstance
+
 import org.scalajs.dom.Document
 
-import com.greencatsoft.scales.component.{ Component, name, prototype }
+import com.greencatsoft.scales.component.{ Component, name, prototype, tag }
+import com.greencatsoft.scales.dom.{ ElementRegistrationOptions, LowPriorityImplicits }
 import com.greencatsoft.scales.macros.AnnotationUtils
 
-private[component] object ComponentRegistryImpl {
+private[component] object ComponentRegistryImpl extends LowPriorityImplicits {
 
-  def register[A <: Component[_]](c: Context)(doc: c.Expr[Document])(implicit tag: c.WeakTypeTag[A]): c.Expr[Option[String]] = {
+  def register[A <: Component[_]](c: Context)(doc: c.Expr[Document])(implicit t: c.WeakTypeTag[A]): c.Expr[Function0[A]] = {
     import c.universe._
 
-    val name = AnnotationUtils.getValueExpr[A, name](c)()(tag, typeTag[name])
-    val prototype = AnnotationUtils.getValueExpr[A, prototype](c)()(tag, typeTag[prototype])
+    val name = AnnotationUtils.getValueExpr[A, name](c)()(t, typeTag[name])
+    val tag = AnnotationUtils.getValueExpr[A, tag](c)()(t, typeTag[tag])
+
+    val prototype = {
+      AnnotationUtils.getValue[A, prototype](c)()(t, typeTag[prototype]) match {
+        case p @ Some(_) => p
+        case None => getPrototype[A](c)()(t)
+      }
+    } match {
+      case Some(value) =>
+        c.Expr[Option[String]] {
+          Apply(Select(Ident(TermName("Some")), TermName("apply")), List(Literal(Constant(value))))
+        }
+      case None => reify(None)
+    }
+
+    val tpe = List(t.tpe)
 
     val constructor = q"""
       import com.greencatsoft.scales.component._
@@ -33,18 +52,29 @@ private[component] object ComponentRegistryImpl {
         throw new InvalidMetadataException(s"'$$name' is a reserved name.")
       }
 
-    //    val definition = ComponentDefinition[A](name, prototype, tag, properties)
-    //    val configuration = definition.define()
-    //
-    //    val prototype = js.Object.create(definition.prototype, configuration)
-    //    val options = ElementRegistrationOptions(Some(prototype), definition.tag)
-    //
-    //    doc.registerElement(definition.name, options)
+      val prototype = ComponentDefinition.prototype({..$prototype})
+      val definition = ComponentDefinition[..$tpe](name, prototype, {..$tag}, Nil)
 
-      None
+      ComponentRegistryImpl.registerDefinition(definition, ..$doc)
     """
 
-    c.Expr[Option[String]](constructor)
+    c.Expr[Function0[A]](constructor)
+  }
+
+  def registerDefinition[A <: Component[_]](definition: ComponentDefinition[A], doc: Document): Function0[A] = {
+    val prototype = js.Object.create(definition.prototype, definition.define())
+    val options = ElementRegistrationOptions(Some(prototype), definition.tag)
+
+    val constructor = doc.registerElement(definition.name, options)
+
+
+    () => {
+      val proxy = newInstance(constructor)().asInstanceOf[ComponentProxy[A]]
+
+      proxy.component getOrElse {
+        throw new IllegalStateException("The component has not been initialized yet.")
+      }
+    }
   }
 
   def getPrototype[A <: Component[_]](c: Context)()(implicit tag: c.WeakTypeTag[A]): Option[String] = {
