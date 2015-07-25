@@ -50,7 +50,7 @@ private[component] case class ComponentDefinition[A <: Component[_]](
         val element = proxy.asInstanceOf[Element]
         val component = c.asInstanceOf[Component[Element]]
 
-        proxy.component = undefined
+        component.onDetach(element)
       }
 
     val attributeChangedCallback: js.ThisFunction3[ComponentProxy[A], String, Any, Any, Unit] =

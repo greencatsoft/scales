@@ -23,10 +23,4 @@ trait Component[A <: Element] extends NodeProvider[Element] with LifecycleAware[
 
     this._element = Some(element)
   }
-
-  override def onDetach(element: A): Unit = {
-    this._element = None
-
-    super.onDetach(element)
-  }
 }
