@@ -9,7 +9,7 @@ object ComponentRegistryTest extends TestSuite {
   implicit val doc = document
 
   "ComponentRegistry.register[A]" should "create a component definition for the given type and register it" in {
-    @name("my-component")
+    @name("component-registry-test")
     class MyComponent extends Component[Element]
 
     val constructor = ComponentRegistry.register[MyComponent]
