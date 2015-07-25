@@ -12,6 +12,9 @@ package object dom {
 
   trait LowPriorityImplicits {
 
+    implicit def asElementFactory(document: Document): ElementFactory =
+      document.asInstanceOf[ElementFactory]
+
     implicit def asElementRegistry(document: Document): ElementRegistry =
       document.asInstanceOf[ElementRegistry]
 
