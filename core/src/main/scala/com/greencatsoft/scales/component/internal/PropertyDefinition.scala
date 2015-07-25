@@ -16,18 +16,18 @@ private[component] case class PropertyDefinition[A <: Component[_]](
     implicit def asDynamic(o: js.Object): js.Dynamic = o.asInstanceOf[js.Dynamic]
 
     val getter: js.ThisFunction0[ComponentProxy[A], Any] =
-      (proxy: ComponentProxy[A]) => proxy.component.asInstanceOf[js.Dynamic](name)
+      (proxy: ComponentProxy[A]) =>
+        proxy.component.asInstanceOf[js.Dynamic].selectDynamic(name)
 
     val definition = Dictionary[Any](
       "get" -> getter,
       "configurable" -> false,
-      "writable" -> !readOnly,
       "enumerable" -> enumerable)
 
     if (!readOnly) {
       val setter: js.ThisFunction1[ComponentProxy[A], js.Any, Unit] =
         (proxy: ComponentProxy[A], value: js.Any) => {
-          proxy.component.asInstanceOf[js.Dynamic](name) = value
+          proxy.component.asInstanceOf[js.Dynamic].updateDynamic(name)(value)
         }: Unit
 
       definition("set") = setter
