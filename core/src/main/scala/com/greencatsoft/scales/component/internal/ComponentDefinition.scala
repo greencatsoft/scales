@@ -12,7 +12,7 @@ private[component] case class ComponentDefinition[A <: Component[_]](
   name: String,
   prototype: js.Object,
   tag: Option[String],
-  properties: Seq[PropertyDefinition[A, _]],
+  properties: Seq[PropertyDefinition[A]],
   factory: () => A) extends Metadata {
 
   require(name != null, "Missing argument 'name'.")
