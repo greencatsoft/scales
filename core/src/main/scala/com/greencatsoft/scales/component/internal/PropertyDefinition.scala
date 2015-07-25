@@ -38,3 +38,4 @@ private[component] case class PropertyDefinition[A <: Component[_]](
     js.Object.defineProperty(prototype, name, descriptor)
   }
 }
+
