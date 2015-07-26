@@ -40,10 +40,15 @@ private[scales] object AnnotationUtils {
     }
   }
 
-  def getFieldAnnotation[A <: StaticAnnotation](c: Context)(method: c.universe.MethodSymbol)(implicit tag: c.WeakTypeTag[A]): Option[String] = {
+  def getMemberAnnotation[A <: StaticAnnotation](c: Context)(method: c.universe.MethodSymbol)(implicit tag: c.WeakTypeTag[A]): Option[String] = {
     import c.universe._
 
-    val arg = method.accessed.annotations collectFirst {
+    val m = method match {
+      case m if m.isAccessor => m.accessed
+      case m => m
+    }
+
+    val arg = m.annotations collectFirst {
       case a if a.tree.tpe =:= tag.tpe => a.tree.children.tail
     }
 
@@ -52,10 +57,15 @@ private[scales] object AnnotationUtils {
     }
   }
 
-  def hasFieldAnnotation[A <: StaticAnnotation](c: Context)(method: c.universe.MethodSymbol)(implicit tag: c.WeakTypeTag[A]): Boolean = {
+  def hasMemberAnnotation[A <: StaticAnnotation](c: Context)(method: c.universe.MethodSymbol)(implicit tag: c.WeakTypeTag[A]): Boolean = {
     import c.universe._
 
-    method.accessed.annotations exists {
+    val m = method match {
+      case m if m.isAccessor => m.accessed
+      case m => m
+    }
+
+    m.annotations exists {
       _.tree.tpe =:= tag.tpe
     }
   }

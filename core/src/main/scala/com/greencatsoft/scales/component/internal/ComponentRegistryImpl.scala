@@ -103,21 +103,19 @@ private[component] object ComponentRegistryImpl extends LowPriorityImplicits {
     def isValid(method: MethodSymbol) =
       method.isPublic &&
         method.isGetter &&
-        (hasExportAll || AnnotationUtils.hasFieldAnnotation[JSExport](c)(method))
+        (hasExportAll || AnnotationUtils.hasMemberAnnotation[JSExport](c)(method))
 
     val properties = tag.tpe.members collect {
       case m: MethodSymbol if isValid(m) =>
-        val name = AnnotationUtils.getFieldAnnotation[JSName](c)(m) getOrElse {
+        val name = AnnotationUtils.getMemberAnnotation[JSName](c)(m) getOrElse {
           m.name.decodedName.toString
         }
 
         val readOnly = !m.setter.isMethod
-        val enumerable = AnnotationUtils.hasFieldAnnotation[enumerable](c)(m)
+        val enumerable = AnnotationUtils.hasMemberAnnotation[enumerable](c)(m)
 
         (name, readOnly, enumerable)
     }
-
-    val tpe = List(tag.tpe)
 
     c.Expr[Seq[PropertyDefinition]] {
       q"""
