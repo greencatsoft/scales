@@ -4,7 +4,7 @@ import scala.reflect.macros.blackbox.Context
 
 import scala.scalajs.js
 import scala.scalajs.js.Dynamic.newInstance
-import scala.scalajs.js.annotation.{ JSExport, JSExportAll }
+import scala.scalajs.js.annotation.{ JSExport, JSExportAll, JSName }
 
 import org.scalajs.dom.Document
 
@@ -107,7 +107,10 @@ private[component] object ComponentRegistryImpl extends LowPriorityImplicits {
 
     val properties = tag.tpe.members collect {
       case m: MethodSymbol if isValid(m) =>
-        val name = m.name.decodedName.toString
+        val name = AnnotationUtils.getFieldAnnotation[JSName](c)(m) getOrElse {
+          m.name.decodedName.toString
+        }
+
         val readOnly = !m.setter.isMethod
         val enumerable = AnnotationUtils.hasFieldAnnotation[enumerable](c)(m)
 

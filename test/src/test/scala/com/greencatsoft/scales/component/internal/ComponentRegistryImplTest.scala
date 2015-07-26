@@ -1,6 +1,6 @@
 package com.greencatsoft.scales.component.internal
 
-import scala.scalajs.js.annotation.{ JSExport, JSExportAll }
+import scala.scalajs.js.annotation.{ JSExport, JSExportAll, JSName }
 
 import org.scalajs.dom.Element
 import org.scalajs.dom.html.Div
@@ -174,6 +174,23 @@ object ComponentRegistryImplTest extends TestSuite {
       p.name should be ("propertyB")
       p.readOnly should be (false)
       p.enumerable should be (false)
+    }
+  }
+
+  It should "use a name specified in @JSName when the annotation is available" in {
+    class MyComponent extends Component[Div] {
+
+      @JSExport
+      @JSName("propertyB")
+      val propertyA = 1
+    }
+
+    val properties = getProperties[MyComponent]()
+
+    properties.size should be (1)
+
+    properties.headOption foreach { p =>
+      p.name should be ("propertyB")
     }
   }
 }

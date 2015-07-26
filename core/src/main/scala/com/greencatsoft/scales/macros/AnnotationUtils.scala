@@ -40,6 +40,18 @@ private[scales] object AnnotationUtils {
     }
   }
 
+  def getFieldAnnotation[A <: StaticAnnotation](c: Context)(method: c.universe.MethodSymbol)(implicit tag: c.WeakTypeTag[A]): Option[String] = {
+    import c.universe._
+
+    val arg = method.accessed.annotations collectFirst {
+      case a if a.tree.tpe =:= tag.tpe => a.tree.children.tail
+    }
+
+    arg collectFirst {
+      case List(Literal(Constant(literal: String))) => literal
+    }
+  }
+
   def hasFieldAnnotation[A <: StaticAnnotation](c: Context)(method: c.universe.MethodSymbol)(implicit tag: c.WeakTypeTag[A]): Boolean = {
     import c.universe._
 
