@@ -24,3 +24,4 @@ project/plugins/project/
 .project
 .classpath
 .settings
+*.md.html
