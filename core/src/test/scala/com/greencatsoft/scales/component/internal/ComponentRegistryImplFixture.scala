@@ -9,5 +9,5 @@ object ComponentRegistryImplFixture {
 
   def getPrototype[A <: Component[_]](): Option[String] = macro ComponentRegistryImpl.getPrototypeExpr[A]
 
-  def getProperties[A <: Component[_]](): Seq[PropertyDefinition[A]] = macro ComponentRegistryImpl.getProperties[A]
+  def getProperties[A <: Component[_]](): Seq[PropertyDefinition] = macro ComponentRegistryImpl.getProperties[A]
 }

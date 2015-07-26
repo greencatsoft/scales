@@ -95,7 +95,7 @@ private[component] object ComponentRegistryImpl extends LowPriorityImplicits {
     }
   }
 
-  def getProperties[A <: Component[_]](c: Context)()(implicit tag: c.WeakTypeTag[A]): c.Expr[Seq[PropertyDefinition[A]]] = {
+  def getProperties[A <: Component[_]](c: Context)()(implicit tag: c.WeakTypeTag[A]): c.Expr[Seq[PropertyDefinition]] = {
     import c.universe._
 
     val hasExportAll = AnnotationUtils.hasAnnotation[JSExportAll](c)(tag, false)
@@ -119,12 +119,12 @@ private[component] object ComponentRegistryImpl extends LowPriorityImplicits {
 
     val tpe = List(tag.tpe)
 
-    c.Expr[Seq[PropertyDefinition[A]]] {
+    c.Expr[Seq[PropertyDefinition]] {
       q"""
         import com.greencatsoft.scales.component.internal.PropertyDefinition
 
         Seq[(String, Boolean, Boolean)](..$properties) map {
-          case (name, readOnly, enumerable) => PropertyDefinition[..$tpe](name, readOnly, enumerable)
+          case (name, readOnly, enumerable) => PropertyDefinition(name, readOnly, enumerable)
         }
       """
     }
