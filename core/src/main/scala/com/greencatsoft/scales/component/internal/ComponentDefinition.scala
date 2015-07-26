@@ -13,15 +13,17 @@ case class ComponentDefinition[A <: Component[_]](
   prototype: js.Object,
   tag: Option[String],
   properties: Seq[PropertyDefinition],
+  methods: Seq[MethodDefinition],
   factory: () => A) extends Metadata {
 
   require(name != null, "Missing argument 'name'.")
   require(prototype != null, "Missing argument 'prototype'.")
   require(tag != null, "Missing argument 'tag'.")
   require(properties != null, "Missing argument 'properties'.")
+  require(methods != null, "Missing argument 'methods'.")
   require(factory != null, "Missing argument 'factory'.")
 
-  override def define(prototype: js.Dynamic): js.Dynamic = properties match {
+  override def define(prototype: js.Dynamic): js.Dynamic = (properties ++ methods) match {
     case head :: tail => tail.foldLeft(head.define(defineCallbacks(prototype)))((d, p) => p.define(d))
     case _ => defineCallbacks(prototype)
   }
@@ -73,7 +75,7 @@ case class ComponentDefinition[A <: Component[_]](
   }
 }
 
-private[component] object ComponentDefinition {
+object ComponentDefinition {
 
   private val NamePattern = "^([a-zA-Z0-9]+)-([a-zA-Z0-9]+)(-([a-zA-Z0-9]+))*$".r
 

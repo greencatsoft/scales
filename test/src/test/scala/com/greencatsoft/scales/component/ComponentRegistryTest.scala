@@ -134,6 +134,47 @@ object ComponentRegistryTest extends TestSuite with LowPriorityImplicits {
     properties should contain ("enumerable")
   }
 
+  It should "export methods defined in the specified type to the registered component" in {
+    @name("component-registry-test-7")
+    class MyComponent extends Component[Element] {
+
+      var greeted = false
+
+      var arg1 = ""
+
+      var arg2 = false
+
+      var arg3 = 10
+
+      @JSExport
+      def hello() {
+        greeted = true
+      }
+
+      @JSExport
+      def test(arg1: String, arg2: Boolean, arg3: Int) {
+        this.arg1 = arg1
+        this.arg2 = arg2
+        this.arg3 = arg3
+      }
+    }
+
+    val constructor = ComponentRegistry.register[MyComponent]
+
+    val component = constructor()
+    val element = component.element.asInstanceOf[js.Dynamic]
+
+    element.hello()
+
+    component.greeted should be (true)
+
+    element.test("test", true, 20)
+
+    component.arg1 should be ("test")
+    component.arg2 should be (true)
+    component.arg3 should be (20)
+  }
+
   It should "throw a MissingMetadataException when the specified class does not have a '@name' annotation" in {
 
     class BadComponent extends Component[Element]

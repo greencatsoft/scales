@@ -35,15 +35,16 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
 
     val tpe = List(t.tpe)
 
-    val methods = t.tpe.members collectFirst {
+    val members = t.tpe.members collectFirst {
       case m: MethodSymbol if m.isPrimaryConstructor => m
     }
 
-    val ctor = methods getOrElse {
+    val ctor = members getOrElse {
       c.abort(c.enclosingPosition, s"The specified type '${t.tpe}' does not have a suitable constructor.")
     }
 
     val properties = getProperties[A](c)()(t)
+    val methods = getMethods[A](c)()(t)
 
     // Should be delegated to a proper DI container(ServiceFactory) later . 
     val factory = Apply(Select(New(Ident(t.tpe.typeSymbol)), termNames.CONSTRUCTOR), Nil)
@@ -70,7 +71,9 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
       val factory = () => {..$factory}
 
       val properties = {..$properties}
-      val definition = ComponentDefinition[..$tpe](name, prototype, {..$tag}, properties, factory)
+      val methods = {..$methods}
+
+      val definition = ComponentDefinition[..$tpe](name, prototype, {..$tag}, properties, methods, factory)
 
       ComponentRegistryImpl.registerDefinition(definition, ..$doc)
     """
@@ -125,6 +128,39 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
           case (name, readOnly, enumerable) => PropertyDefinition(name, readOnly, enumerable)
         }
       """
+    }
+  }
+
+  def getMethods[A <: Component[_]](c: Context)()(implicit tag: c.WeakTypeTag[A]): c.Expr[Seq[MethodDefinition]] = {
+    import c.universe._
+
+    val hasExportAll = AnnotationUtils.hasAnnotation[JSExportAll](c)(tag, false)
+
+    def isValid(method: MethodSymbol) =
+      method.isPublic &&
+        !method.isConstructor &&
+        !method.isGetter &&
+        !method.isSetter &&
+        (hasExportAll || AnnotationUtils.hasMemberAnnotation[JSExport](c)(method))
+
+    val methods = tag.tpe.members collect {
+      case m: MethodSymbol if isValid(m) =>
+        val name = AnnotationUtils.getMemberAnnotation[JSName](c)(m) getOrElse {
+          m.name.decodedName.toString
+        }
+
+        val arguments = m.paramLists.headOption.toSeq.flatten map {
+          name => Literal(Constant(name.asTerm.name.toString))
+        }
+
+        val arg1 = Literal(Constant(name))
+        val arg2 = Apply(Select(Ident(TermName("Seq")), TermName("apply")), arguments.toList)
+
+        Apply(Select(Ident(TermName("MethodDefinition")), TermName("apply")), List(arg1, arg2))
+    }
+
+    c.Expr[Seq[MethodDefinition]] {
+      Apply(Select(Ident(TermName("Seq")), TermName("apply")), methods.toList)
     }
   }
 

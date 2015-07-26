@@ -193,4 +193,154 @@ object ComponentRegistryImplTest extends TestSuite {
       p.name should be ("propertyB")
     }
   }
+
+  "ComponentRegistryImpl.getMethods[A]" should "return a collection of method definitions of the specified component" in {
+    class MyComponent extends Component[Div] {
+
+      @JSExport
+      def hello(name: String, quote: Boolean): String =
+        if (quote) s"Hello, '$name!'" else s"Hello, $name!"
+
+      @JSExport
+      def world(): Unit = println("Method without arguments.")
+    }
+
+    val methods = getMethods[MyComponent]().sortBy(_.name)
+
+    methods.size should be (2)
+
+    methods.headOption foreach { m =>
+      m.name should be ("hello")
+      m.arguments should be (Seq("name", "quote"))
+    }
+
+    methods.lastOption foreach { m =>
+      m.name should be ("world")
+      m.arguments should be (empty)
+    }
+  }
+
+  It might "ignore any non-public methods or accessors" in {
+    class MyComponent extends Component[Div] {
+
+      @JSExport
+      def name: String = "My Component"
+
+      @JSExport
+      def name_=(n: String) {
+        println("No, 'My Component' is a good enough name for a test!")
+      }
+
+      @JSExport
+      var description: String = "It is cool!"
+
+      @JSExport
+      def hello(name: String, quote: Boolean): String =
+        if (quote) s"Hello, '$name!'" else s"Hello, $name!"
+
+      @JSExport
+      protected def world(): Unit = println("Method without arguments.")
+    }
+
+    val methods = getMethods[MyComponent]().sortBy(_.name)
+
+    methods.size should be (1)
+
+    methods.headOption foreach { m =>
+      m.name should be ("hello")
+      m.arguments should be (Seq("name", "quote"))
+    }
+  }
+
+  It should "ignore methods without @JSExport annotation, if not otherwise exported" in {
+    class MyComponent extends Component[Div] {
+
+      @JSExport
+      def hello(name: String, quote: Boolean): String =
+        if (quote) s"Hello, '$name!'" else s"Hello, $name!"
+
+      def world(): Unit = println("Method without arguments.")
+    }
+
+    val methods = getMethods[MyComponent]().sortBy(_.name)
+
+    methods.size should be (1)
+
+    methods.headOption foreach { m =>
+      m.name should be ("hello")
+      m.arguments should be (Seq("name", "quote"))
+    }
+  }
+
+  It might "include methods without @JSExport annotation, if the enclosing class is annotated with @JSExportAll" in {
+    @JSExportAll
+    class MyComponent extends Component[Div] {
+
+      def hello(name: String, quote: Boolean): String =
+        if (quote) s"Hello, '$name!'" else s"Hello, $name!"
+
+      def world(): Unit = println("Method without arguments.")
+    }
+
+    val methods = getMethods[MyComponent]().sortBy(_.name)
+
+    methods.size should be (2)
+
+    methods.headOption foreach { m =>
+      m.name should be ("hello")
+      m.arguments should be (Seq("name", "quote"))
+    }
+
+    methods.lastOption foreach { m =>
+      m.name should be ("world")
+      m.arguments should be (empty)
+    }
+  }
+
+  It should "include methods inherited from the ancestors of the specified type" in {
+    class BaseComponent[A <: Element] extends Component[A] {
+
+      @JSExport
+      def hello(name: String, quote: Boolean): String =
+        if (quote) s"Hello, '$name!'" else s"Hello, $name!"
+    }
+
+    class MyComponent extends BaseComponent[HTMLInputElement] {
+
+      @JSExport
+      def world(): Unit = println("Method without arguments.")
+    }
+
+    val methods = getMethods[MyComponent]().sortBy(_.name)
+
+    methods.size should be (2)
+
+    methods.headOption foreach { m =>
+      m.name should be ("hello")
+      m.arguments should be (Seq("name", "quote"))
+    }
+
+    methods.lastOption foreach { m =>
+      m.name should be ("world")
+      m.arguments should be (empty)
+    }
+  }
+
+  It should "use a name specified in @JSName when the annotation is available" in {
+    class MyComponent extends Component[Div] {
+
+      @JSName("goodbye")
+      @JSExport
+      def hello(name: String, quote: Boolean): String =
+        if (quote) s"Hello, '$name!'" else s"Hello, $name!"
+    }
+
+    val methods = getMethods[MyComponent]()
+
+    methods.size should be (1)
+
+    methods.headOption foreach { p =>
+      p.name should be ("goodbye")
+    }
+  }
 }
