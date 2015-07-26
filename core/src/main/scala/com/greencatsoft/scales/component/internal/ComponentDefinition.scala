@@ -8,7 +8,7 @@ import org.scalajs.dom.{ console, Element }
 
 import com.greencatsoft.scales.component.{ AttributeChangeAware, Component }
 
-private[component] case class ComponentDefinition[A <: Component[_]](
+case class ComponentDefinition[A <: Component[_]](
   name: String,
   prototype: js.Object,
   tag: Option[String],

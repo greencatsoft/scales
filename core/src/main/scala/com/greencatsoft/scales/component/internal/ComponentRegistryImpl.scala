@@ -12,7 +12,7 @@ import com.greencatsoft.scales.component.{ Component, enumerable, name, prototyp
 import com.greencatsoft.scales.dom.{ ElementRegistrationOptions, LowPriorityImplicits }
 import com.greencatsoft.scales.macros.AnnotationUtils
 
-private[component] object ComponentRegistryImpl extends LowPriorityImplicits {
+object ComponentRegistryImpl extends LowPriorityImplicits {
 
   def register[A <: Component[_]](c: Context)(doc: c.Expr[Document])(implicit t: c.WeakTypeTag[A]): c.Expr[Function0[A]] = {
     import c.universe._

@@ -4,7 +4,7 @@ import scala.language.implicitConversions
 import scala.scalajs.js
 import scala.scalajs.js.{ Dictionary, PropertyDescriptor }
 
-private[component] case class PropertyDefinition(
+case class PropertyDefinition(
   name: String, readOnly: Boolean = false, enumerable: Boolean = false) extends Metadata {
   require(name != null && name.length > 0, "Missing argument 'name'.")
 
