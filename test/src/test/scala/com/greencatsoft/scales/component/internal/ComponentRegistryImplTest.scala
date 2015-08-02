@@ -96,6 +96,38 @@ object ComponentRegistryImplTest extends TestSuite {
     }
   }
 
+  It should "include getters and setters" in {
+    class MyComponent extends Component[Div] {
+
+      @JSExport
+      def name: String = "Max"
+
+      @JSExport
+      def name_=(n: String) {
+        println("It's Max, never Maxine!")
+      }
+
+      @JSExport
+      def greetings: String = s"Hello, $name!"
+    }
+
+    val properties = getProperties[MyComponent]().sortBy(_.name)
+
+    properties.size should be (2)
+
+    properties.headOption foreach { p =>
+      p.name should be ("greetings")
+      p.readOnly should be (true)
+      p.enumerable should be (false)
+    }
+
+    properties.lastOption foreach { p =>
+      p.name should be ("name")
+      p.readOnly should be (false)
+      p.enumerable should be (false)
+    }
+  }
+
   It should "ignore properties without @JSExport annotation, if not otherwise exported" in {
     class MyComponent extends Component[Div] {
 
@@ -224,15 +256,15 @@ object ComponentRegistryImplTest extends TestSuite {
     }
   }
 
-  It might "ignore any non-public methods or accessors" in {
+  It should "ignore any non-public methods or accessors" in {
     class MyComponent extends Component[Div] {
 
       @JSExport
-      def name: String = "My Component"
+      def name: String = "Chloe"
 
       @JSExport
       def name_=(n: String) {
-        println("No, 'My Component' is a good enough name for a test!")
+        println("No, 'Chloe' is good enough a name!")
       }
 
       @JSExport
@@ -254,6 +286,21 @@ object ComponentRegistryImplTest extends TestSuite {
       m.name should be ("hello")
       m.arguments should be (Seq("name", "quote"))
     }
+  }
+
+  It should "ignore getters and setters" in {
+    class MyComponent extends Component[Div] {
+
+      @JSExport
+      def hello_=(name: String): Unit = println(s"Hello, $name!")
+
+      @JSExport
+      def world: String = "Method without parentheses."
+    }
+
+    val methods = getMethods[MyComponent]().sortBy(_.name)
+
+    methods should be (empty)
   }
 
   It should "ignore methods without @JSExport annotation, if not otherwise exported" in {

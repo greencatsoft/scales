@@ -103,27 +103,50 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
 
     val hasExportAll = AnnotationUtils.hasAnnotation[JSExportAll](c)(tag, false)
 
-    def isValid(method: MethodSymbol, annotatedOnly: Boolean) =
-      method.isPublic &&
-        method.isGetter &&
-        (!annotatedOnly || AnnotationUtils.hasMemberAnnotation[JSExport](c)(method))
+    def isValid(symbol: Symbol, annotatedOnly: Boolean) =
+      symbol.isPublic &&
+        symbol.isMethod &&
+        (!annotatedOnly || AnnotationUtils.hasMemberAnnotation[JSExport](c)(symbol.asMethod))
 
-    def find(annotatedOnly: Boolean): PartialFunction[Symbol, (String, Boolean, Boolean)] = {
-      case m: MethodSymbol if isValid(m, annotatedOnly) =>
-        val name = AnnotationUtils.getMemberAnnotation[JSName](c)(m) getOrElse {
-          m.name.decodedName.toString
-        }
+    val declared = if (hasExportAll) tag.tpe.decls.filter(isValid(_, false)) else Nil
+    val annotated = tag.tpe.members.filter(isValid(_, true))
 
-        val readOnly = !m.setter.isMethod
-        val enumerable = AnnotationUtils.hasMemberAnnotation[enumerable](c)(m)
+    val methods = (declared ++ annotated).map(_.asMethod).toList.distinct
 
-        (name, readOnly, enumerable)
+    def isCustomGetter(method: MethodSymbol): Boolean =
+      method.paramLists.isEmpty && !(method.returnType =:= typeOf[Unit])
+
+    def isCustomSetter(method: MethodSymbol): Boolean =
+      method.name.decodedName.toString.endsWith("_=") &&
+        !method.paramLists.isEmpty &&
+        method.paramLists.head.size == 1 &&
+        method.returnType =:= typeOf[Unit]
+
+    def name(method: MethodSymbol): String = method.name.decodedName.toString
+    val setters = methods.filter(isCustomSetter) map { m =>
+      val getter = {
+        val n = name(m)
+        n.substring(0, n.length - 2)
+      }
+
+      (getter, m)
     }
 
-    val declared = if (hasExportAll) tag.tpe.decls collect find(false) else Nil
-    val annotated = tag.tpe.members collect find(true)
+    val setterMap = setters.toMap
 
-    val properties = (declared ++ annotated).toList.distinct
+    val properties = methods collect {
+      case m if m.isGetter => (m, !m.setter.isMethod)
+      case m if isCustomGetter(m) => (m, !setterMap.contains(name(m)))
+    } map {
+      case (m, readOnly) =>
+        val n = AnnotationUtils.getMemberAnnotation[JSName](c)(m) getOrElse {
+          name(m)
+        }
+
+        val enumerable = AnnotationUtils.hasMemberAnnotation[enumerable](c)(m)
+
+        (n, readOnly, enumerable)
+    }
 
     c.Expr[Seq[PropertyDefinition]] {
       q"""
@@ -146,6 +169,8 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
         !method.isConstructor &&
         !method.isGetter &&
         !method.isSetter &&
+        !method.name.decodedName.toString.endsWith("_=") &&
+        !method.paramLists.isEmpty &&
         (!annotatedOnly || AnnotationUtils.hasMemberAnnotation[JSExport](c)(method))
 
     def find(annotatedOnly: Boolean): PartialFunction[Symbol, Tree] = {
