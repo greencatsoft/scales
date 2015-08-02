@@ -116,14 +116,18 @@ object ComponentRegistryImplTest extends TestSuite {
     }
   }
 
-  It should "include properties without @JSExport annotation, if the enclosing class is annotated with @JSExportAll" in {
-    @JSExportAll
-    class MyComponent extends Component[Div] {
+  It should "include declared properties without @JSExport annotation, if the enclosing class is annotated with @JSExportAll" in {
+    trait ParentComponent extends Component[Div] {
+      val propertyA = "Should ignore this one!"
+    }
 
-      val propertyA = 1
+    @JSExportAll
+    class MyComponent extends ParentComponent {
+
+      val propertyB = 1
 
       @enumerable
-      var propertyB = "test"
+      var propertyC = "test"
     }
 
     val properties = getProperties[MyComponent]().sortBy(_.name)
@@ -131,13 +135,13 @@ object ComponentRegistryImplTest extends TestSuite {
     properties.size should be (2)
 
     properties.headOption foreach { p =>
-      p.name should be ("propertyA")
+      p.name should be ("propertyB")
       p.readOnly should be (true)
       p.enumerable should be (false)
     }
 
     properties.lastOption foreach { p =>
-      p.name should be ("propertyB")
+      p.name should be ("propertyC")
       p.readOnly should be (false)
       p.enumerable should be (true)
     }
@@ -272,7 +276,7 @@ object ComponentRegistryImplTest extends TestSuite {
     }
   }
 
-  It might "include methods without @JSExport annotation, if the enclosing class is annotated with @JSExportAll" in {
+  It should "include declared methods without @JSExport annotation, if the enclosing class is annotated with @JSExportAll" in {
     @JSExportAll
     class MyComponent extends Component[Div] {
 

@@ -103,13 +103,13 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
 
     val hasExportAll = AnnotationUtils.hasAnnotation[JSExportAll](c)(tag, false)
 
-    def isValid(method: MethodSymbol) =
+    def isValid(method: MethodSymbol, annotatedOnly: Boolean) =
       method.isPublic &&
         method.isGetter &&
-        (hasExportAll || AnnotationUtils.hasMemberAnnotation[JSExport](c)(method))
+        (!annotatedOnly || AnnotationUtils.hasMemberAnnotation[JSExport](c)(method))
 
-    val properties = tag.tpe.members collect {
-      case m: MethodSymbol if isValid(m) =>
+    def find(annotatedOnly: Boolean): PartialFunction[Symbol, (String, Boolean, Boolean)] = {
+      case m: MethodSymbol if isValid(m, annotatedOnly) =>
         val name = AnnotationUtils.getMemberAnnotation[JSName](c)(m) getOrElse {
           m.name.decodedName.toString
         }
@@ -119,6 +119,11 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
 
         (name, readOnly, enumerable)
     }
+
+    val declared = if (hasExportAll) tag.tpe.decls collect find(false) else Nil
+    val annotated = tag.tpe.members collect find(true)
+
+    val properties = (declared ++ annotated).toList.distinct
 
     c.Expr[Seq[PropertyDefinition]] {
       q"""
@@ -136,15 +141,15 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
 
     val hasExportAll = AnnotationUtils.hasAnnotation[JSExportAll](c)(tag, false)
 
-    def isValid(method: MethodSymbol) =
+    def isValid(method: MethodSymbol, annotatedOnly: Boolean) =
       method.isPublic &&
         !method.isConstructor &&
         !method.isGetter &&
         !method.isSetter &&
-        (hasExportAll || AnnotationUtils.hasMemberAnnotation[JSExport](c)(method))
+        (!annotatedOnly || AnnotationUtils.hasMemberAnnotation[JSExport](c)(method))
 
-    val methods = tag.tpe.members collect {
-      case m: MethodSymbol if isValid(m) =>
+    def find(annotatedOnly: Boolean): PartialFunction[Symbol, Tree] = {
+      case m: MethodSymbol if isValid(m, annotatedOnly) =>
         val name = AnnotationUtils.getMemberAnnotation[JSName](c)(m) getOrElse {
           m.name.decodedName.toString
         }
@@ -159,8 +164,13 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
         Apply(Select(Ident(TermName("MethodDefinition")), TermName("apply")), List(arg1, arg2))
     }
 
+    val declared = if (hasExportAll) tag.tpe.decls collect find(false) else Nil
+    val annotated = tag.tpe.members collect find(true)
+
+    val methods = (declared ++ annotated).toList.distinct
+
     c.Expr[Seq[MethodDefinition]] {
-      Apply(Select(Ident(TermName("Seq")), TermName("apply")), methods.toList)
+      Apply(Select(Ident(TermName("Seq")), TermName("apply")), methods)
     }
   }
 
