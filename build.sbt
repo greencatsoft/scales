@@ -66,7 +66,9 @@ lazy val core = (project in file("core"))
   .settings(
     name := "scales-core",
     libraryDependencies ++= Seq(
-      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "compile")
+      "org.scala-lang" % "scala-reflect" % scalaVersion.value % "compile"),
+    publish := {},
+    publishLocal := {}
   )
 
 lazy val test = (project in file("test"))
@@ -83,6 +85,8 @@ lazy val test = (project in file("test"))
       RuntimeDOM
     ),
     scalaJSStage in Test := FastOptStage,
-    testFrameworks := new TestFramework("com.greencatsoft.greenlight.Greenlight") :: Nil
+    testFrameworks := new TestFramework("com.greencatsoft.greenlight.Greenlight") :: Nil,
+    publish := {},
+    publishLocal := {}
   )
   .dependsOn(core % "test->test;compile->compile")
