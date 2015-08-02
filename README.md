@@ -26,6 +26,20 @@ section.
 
 ### How to Use
 
+### SBT Settings
+
+Add the following lines to your ```sbt``` build definition:
+
+```scala
+libraryDependencies += "com.greencatsoft" %%% "scales" % "0.1-SNAPSHOT"
+```
+
+And add Sonatype snapshot repository to the resolvers as follows:
+
+```scala
+resolvers += Resolver.sonatypeRepo("snapshots")
+```
+
 #### Defining a Component
 
 To define a component, write a class which extends `Component[A]` trait and register it 
