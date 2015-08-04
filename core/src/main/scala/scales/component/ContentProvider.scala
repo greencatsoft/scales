@@ -4,7 +4,7 @@ import org.scalajs.dom.{ Document, Element, Node }
 
 import scales.dom.Template
 
-import scalatags.JsDom.Tag
+import scalatags.JsDom.TypedTag
 
 trait ContentProvider[A <: Element] extends LifecycleAware[A] {
   this: Component[A] =>
@@ -27,17 +27,20 @@ trait TemplateContentProvider[A <: Element] extends ContentProvider[A] {
   def templateSelector: String
 
   override def build(document: Document): Node = {
-    val template = document.querySelector(templateSelector).asInstanceOf[Template] ensuring (_ != null,
-      s"Failed to find the specified template node '$templateSelector'.")
+    val template = Option(document.querySelector(templateSelector)) getOrElse {
+      s"Failed to find the specified template node '$templateSelector'."
+    }
 
-    document.importNode(template.content, true)
+    val content = template.asInstanceOf[Template].content
+
+    document.importNode(content, true)
   }
 }
 
-trait ScalaTagsDOMProvider[A <: Element] extends ContentProvider[A] {
+trait ScalaTagsContentProvider[A <: Element] extends ContentProvider[A] {
   this: Component[A] =>
 
-  def template: Tag
+  def template: TypedTag[Element]
 
   override def build(document: Document): Node = document.importNode(template.render, true)
 }
