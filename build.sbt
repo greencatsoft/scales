@@ -4,7 +4,7 @@ description in ThisBuild := "A Web Component based UI framework written in Scala
 
 organization in ThisBuild := "com.greencatsoft"
 
-version in ThisBuild := "0.1"
+version in ThisBuild := "0.2-SNAPSHOT"
 
 homepage in ThisBuild := Some(url("http://github.com/greencatsoft/scales"))
 
