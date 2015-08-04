@@ -68,7 +68,9 @@ lazy val core = (project in file("core"))
     libraryDependencies ++= Seq(
       "org.scala-lang" % "scala-reflect" % scalaVersion.value % "compile"),
     publish := {},
-    publishLocal := {}
+    publishLocal := {},
+    PgpKeys.publishSigned := {},
+    PgpKeys.publishLocalSigned := {}
   )
 
 lazy val test = (project in file("test"))
@@ -87,6 +89,8 @@ lazy val test = (project in file("test"))
     scalaJSStage in Test := FastOptStage,
     testFrameworks := new TestFramework("com.greencatsoft.greenlight.Greenlight") :: Nil,
     publish := {},
-    publishLocal := {}
+    publishLocal := {},
+    PgpKeys.publishSigned := {},
+    PgpKeys.publishLocalSigned := {}
   )
   .dependsOn(core % "test->test;compile->compile")
