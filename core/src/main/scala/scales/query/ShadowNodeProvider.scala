@@ -8,6 +8,7 @@ trait ShadowNodeProvider[A <: Element] extends NodeProvider[A] {
 
   override abstract def contentRoot: A = {
     val element = super.contentRoot
-    element.shadowRoot.getOrElse(element.createShadowRoot()).asInstanceOf[A]
+
+    Option(element.shadowRoot).getOrElse(element.createShadowRoot()).asInstanceOf[A]
   }
 }

@@ -1,7 +1,5 @@
 package scales.query
 
-import scala.scalajs.js.UndefOr
-
 import org.scalajs.dom.{ Element, Node, NodeSelector }
 import org.scalajs.dom.ext.PimpedNodeList
 
@@ -12,9 +10,9 @@ trait NodeProvider[A <: NodeSelector] {
   def querySelector[T <: Element](selectors: String): Option[T] = {
     require(selectors != null, "Missing argument 'selectors'.")
 
-    val result: UndefOr[Element] = contentRoot.querySelector(selectors)
+    val result = Option(contentRoot.querySelector(selectors))
 
-    result.map(_.asInstanceOf[T]).toOption
+    result.map(_.asInstanceOf[T])
   }
 
   def querySelectorAll[T <: Element](selectors: String): Seq[T] = {

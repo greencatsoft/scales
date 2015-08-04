@@ -1,7 +1,6 @@
 package scales.dom
 
 import scala.scalajs.js
-import scala.scalajs.js.UndefOr
 
 import org.scalajs.dom.{ Element, NodeList }
 
@@ -12,5 +11,5 @@ trait ShadowHost extends js.Object {
 
   def getDestinationInsertionPoints(): NodeList = js.native
 
-  def shadowRoot: UndefOr[ShadowRoot] = js.native
+  def shadowRoot: ShadowRoot = js.native
 }
