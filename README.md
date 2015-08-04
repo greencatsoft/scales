@@ -31,10 +31,11 @@ section.
 Add the following lines to your ```sbt``` build definition:
 
 ```scala
-libraryDependencies += "com.greencatsoft" %%% "scales" % "0.1-SNAPSHOT"
+libraryDependencies += "com.greencatsoft" %%% "scales" % "0.1"
 ```
 
-And add Sonatype snapshot repository to the resolvers as follows:
+If you want to test the latest snapshot version instead, change the version to 
+```0.2-SNAPSHOT``` and add Sonatype snapshot repository to the resolver as follows: 
 
 ```scala
 resolvers += Resolver.sonatypeRepo("snapshots")

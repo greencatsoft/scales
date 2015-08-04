@@ -4,7 +4,7 @@ description in ThisBuild := "A Web Component based UI framework written in Scala
 
 organization in ThisBuild := "com.greencatsoft"
 
-version in ThisBuild := "0.1-SNAPSHOT"
+version in ThisBuild := "0.1"
 
 homepage in ThisBuild := Some(url("http://github.com/greencatsoft/scales"))
 
@@ -80,7 +80,7 @@ lazy val test = (project in file("test"))
   .settings(
     name := "scales-test",
     libraryDependencies ++= Seq(
-      "com.greencatsoft" %%% "greenlight" % "0.2-SNAPSHOT" % "test"),
+      "com.greencatsoft" %%% "greenlight" % "0.2" % "test"),
     jsDependencies in Test ++= Seq(
       ProvidedJS / "webcomponents.min.js",
       ProvidedJS / "object-observe-lite.min.js",
