@@ -176,6 +176,32 @@ object ComponentRegistryTest extends TestSuite with LowPriorityImplicits {
     component.arg3 should be (20)
   }
 
+  It should "allow registering an abstract class as component definition" in {
+    @name("component-registry-test-8")
+    abstract class MyComponent extends Component[Element]
+
+    val constructor = ComponentRegistry.register[MyComponent]
+
+    constructor should not be (empty)
+
+    val component = constructor()
+
+    component should not be (empty)
+  }
+
+  It should "allow registering an abstract class as component definition" in {
+    @name("component-registry-test-9")
+    trait MyComponent extends Component[Element]
+
+    val constructor = ComponentRegistry.register[MyComponent]
+
+    constructor should not be (empty)
+
+    val component = constructor()
+
+    component should not be (empty)
+  }
+
   It should "throw a MissingMetadataException when the specified class does not have a '@name' annotation" in {
 
     class BadComponent extends Component[Element]

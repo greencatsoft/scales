@@ -46,12 +46,10 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
     val properties = getProperties[A](c)()(t)
     val methods = getMethods[A](c)()(t)
 
-    // Should be delegated to a proper DI container(ServiceFactory) later . 
-    val factory = Apply(Select(New(Ident(t.tpe.typeSymbol)), termNames.CONSTRUCTOR), Nil)
-
     val constructor = q"""
       import scales.component._
       import scales.component.internal._
+      import scales.di._
 
       val name = {..$name} getOrElse {
         throw new MissingMetadataException(
@@ -68,7 +66,7 @@ object ComponentRegistryImpl extends LowPriorityImplicits {
       }
 
       val prototype = ComponentDefinition.prototype({..$prototype})
-      val factory = () => {..$factory}
+      val factory = () => ServiceFactory.newInstance[..$tpe](GlobalScope)
 
       val properties = {..$properties}
       val methods = {..$methods}
