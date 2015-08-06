@@ -8,11 +8,11 @@ _Scales_ is a [_Web Components_](http://webcomponents.org/) based UI framework w
 framework which is entirely written in _Scala_, so that it could be used and extended easily 
 by those developers who prefer the language to plain Javascript. 
 
-### Current Status
+### Current Status [![Build Status](http://ci.greencatsoft.com/buildStatus/icon?job=scales)](http://ci.greencatsoft.com/job/scales)
 
 Currently, the project is in the _proof-of-concept_ stage, so it's not recommended to use it 
 in a production environment. For implemented and planned features, please refer to the next 
-section. 
+section.
 
 ### Features
 
