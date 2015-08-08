@@ -112,10 +112,28 @@ object ExpressionParserTest extends TestSuite {
     find(invocation)("a.b(-2.4)") should be (MethodInvocation(Seq(Identifier("a")), Identifier("b"), Seq(Literal(-2.4d))))
   }
 
+  It should "accept property references as arguments" in {
+    find(invocation)("abc(d)") should be (MethodInvocation(Nil, Identifier("abc"), Seq(PropertyReference(Seq(Identifier("d"))))))
+    find(invocation)("a.bc(d)") should be (MethodInvocation(Seq(Identifier("a")), Identifier("bc"), Seq(PropertyReference(Seq(Identifier("d"))))))
+    find(invocation)("abc(de.f)") should be (MethodInvocation(Nil, Identifier("abc"), Seq(PropertyReference(Seq(Identifier("de"), Identifier("f"))))))
+    find(invocation)("ab.c(d, true, ef.g, 'h')") should be (MethodInvocation(Seq(Identifier("ab")), Identifier("c"),
+      Seq(PropertyReference(Seq(Identifier("d"))), Literal(true), PropertyReference(Seq(Identifier("ef"), Identifier("g"))), Literal("h"))))
+  }
+
+  It should "accept nested method invocations as arguments" in {
+    find(invocation)("abc(d())") should be (MethodInvocation(Nil, Identifier("abc"), Seq(MethodInvocation(Nil, Identifier("d"), Nil))))
+    find(invocation)("a.bc(d.e(true))") should be (MethodInvocation(Seq(Identifier("a")), Identifier("bc"),
+      Seq(MethodInvocation(Seq(Identifier("d")), Identifier("e"), Seq(Literal(true))))))
+    find(invocation)("abc(de.f(gh, true))") should be (MethodInvocation(Nil, Identifier("abc"), Seq(
+      MethodInvocation(Seq(Identifier("de")), Identifier("f"), Seq(PropertyReference(Seq(Identifier("gh"))), Literal(true))))))
+    find(invocation)("ab.c(d, true, ef.g(), 'h')") should be (MethodInvocation(Seq(Identifier("ab")), Identifier("c"),
+      Seq(PropertyReference(Seq(Identifier("d"))), Literal(true), MethodInvocation(Seq(Identifier("ef")), Identifier("g"), Nil), Literal("h"))))
+  }
+
   It should "report a failure when given an invalid method invocation expression" in {
     isSuccessful(invocation)("a(") should be (false)
     isSuccessful(invocation)("(true, 1, 2)") should be (false)
-    isSuccessful(invocation)("a.b.c(abc)") should be (false)
+    isSuccessful(invocation)("a.b.c(1abc)") should be (false)
   }
 
   "ExpressionParser.expression" should "parse a method invocation of a referenced object of any depth" in {
@@ -128,7 +146,7 @@ object ExpressionParserTest extends TestSuite {
   It should "report a failure when given an invalid method invocation expression" in {
     isSuccessful(expression)("%{a()") should be (false)
     isSuccessful(expression)("%{(true, 1, 2)}") should be (false)
-    isSuccessful(expression)("%{a.b.c(abc)}") should be (false)
+    isSuccessful(expression)("%{a.b.c(a bc)}") should be (false)
     isSuccessful(expression)("{a.b.c('abc')}") should be (false)
   }
 

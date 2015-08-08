@@ -7,7 +7,7 @@ object ExpressionParser extends JavaTokenParsers {
 
   def identifier: Parser[Identifier] = "[a-zA-Z]+[a-zA-Z0-9_]*".r ^^ Identifier
 
-  def path: Parser[Seq[Identifier]] = repsep(identifier, ".")
+  def path: Parser[Seq[Identifier]] = rep1sep(identifier, ".")
 
   def nonEmptyPath: Parser[Seq[Identifier]] = rep1sep(identifier, ".")
 
@@ -21,12 +21,14 @@ object ExpressionParser extends JavaTokenParsers {
 
   def literal: Parser[Literal] = (quotedLiteral | booleanLiteral | doubleLiteral | longLiteral) ^^ Literal
 
+  def argument: Parser[Expression] = (literal | invocation | reference)
+
   def reference: Parser[PropertyReference] = path ^^ PropertyReference
 
-  def invocation: Parser[MethodInvocation] = nonEmptyPath ~ ("(" ~> repsep(literal, ",") <~ ")") ^^ {
+  def invocation: Parser[MethodInvocation] = nonEmptyPath ~ ("(" ~> repsep(argument, ",") <~ ")") ^^ {
     case p ~ args if p.size == 1 => MethodInvocation(Nil, p.head, args)
     case p ~ args => MethodInvocation(p.dropRight(1), p.last, args)
   }
 
-  def expression: Parser[Expression] = "%{" ~> (invocation | reference) <~ "}"
+  def expression: Parser[Expression] = "%{" ~> (literal | invocation | reference) <~ "}"
 }
