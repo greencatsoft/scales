@@ -19,7 +19,7 @@ object ExpressionParser extends JavaTokenParsers {
 
   def doubleLiteral: Parser[Double] = (floatingPointNumber | decimalNumber) ^^ (_.toDouble)
 
-  def literal: Parser[Literal] = (quotedLiteral | booleanLiteral | doubleLiteral | longLiteral) ^^ Literal
+  def literal: Parser[Literal] = ("null" | quotedLiteral | booleanLiteral | doubleLiteral | longLiteral) ^^ Literal
 
   def argument: Parser[Expression] = (literal | invocation | reference)
 
