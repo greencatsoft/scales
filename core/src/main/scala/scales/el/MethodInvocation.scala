@@ -34,7 +34,7 @@ case class MethodInvocation(
             }
 
             result.flatten
-          case None => Failure{
+          case None => Failure {
             new EvaluationFailureException(
               s"Unable to find a function named '$name' in object '$path'.")
           }
