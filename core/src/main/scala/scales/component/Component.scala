@@ -22,7 +22,7 @@ trait Component[A <: Element] extends NodeProvider[Element] with ContextProvider
 
   @throws[IllegalStateException](
     "Thrown when invoked before the component is attached to a DOM tree.")
-  def context: ExpressionContext = _context getOrElse {
+  override def context: ExpressionContext = _context getOrElse {
     throw new IllegalStateException("The component has not been initialized yet.")
   }
 
