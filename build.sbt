@@ -40,7 +40,7 @@ val scalaJSSettings = Seq(
   )
 )
 
-lazy val root = (project in file("."))
+lazy val scales = (project in file("."))
   .settings(scalaSettings)
   .settings(
     publishTo := {
@@ -54,12 +54,12 @@ lazy val root = (project in file("."))
     pomIncludeRepository := { _ => false },
     unmanagedSourceDirectories in Compile := Nil,
     unmanagedSourceDirectories in Test := Nil,
-    mappings in (Compile, packageBin) ++= mappings.in(core, Compile, packageBin).value,
-    mappings in (Compile, packageSrc) ++= mappings.in(core, Compile, packageSrc).value
+    mappings in (Compile, packageBin) ++= mappings.in(scalesCore, Compile, packageBin).value,
+    mappings in (Compile, packageSrc) ++= mappings.in(scalesCore, Compile, packageSrc).value
   )
-  .aggregate(test, core)
+  .aggregate(scalesTest, scalesCore)
 
-lazy val core = (project in file("core"))
+lazy val scalesCore = (project in file("core"))
   .enablePlugins(ScalaJSPlugin)
   .settings(scalaSettings)
   .settings(scalaJSSettings)
@@ -73,7 +73,7 @@ lazy val core = (project in file("core"))
     PgpKeys.publishLocalSigned := {}
   )
 
-lazy val test = (project in file("test"))
+lazy val scalesTest = (project in file("test"))
   .enablePlugins(ScalaJSPlugin)
   .settings(scalaSettings)
   .settings(scalaJSSettings)
@@ -93,4 +93,4 @@ lazy val test = (project in file("test"))
     PgpKeys.publishSigned := {},
     PgpKeys.publishLocalSigned := {}
   )
-  .dependsOn(core % "test->test;compile->compile")
+  .dependsOn(scalesCore % "test->test;compile->compile")
