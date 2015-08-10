@@ -68,7 +68,7 @@ val element = document.createElement("my-component")
 document.body.appendChild(element)
 
 // Or use a component constructor.
-val consructor = ComponentRegistry.register[AnotherComponent]
+val constructor = ComponentRegistry.register[AnotherComponent]
 val component = constructor()
 
 document.body.appendChild(component.element)
@@ -181,7 +181,7 @@ class HelloComponent extends Component[Div]
   // Called when the value of an attribute is changed. 
   override def onAttributeChange(
     name: String, oldValue: Any, newValue: Any, element: Div) {
-    onAttributeChange(name, oldValue, newValue, element)
+    super.onAttributeChange(name, oldValue, newValue, element)
     console.info(s"Attribute '$name' is changed: '$newValue'") 
   }
 }
