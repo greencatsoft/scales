@@ -15,5 +15,3 @@ class EvaluationFailureException(message: String, cause: Throwable)
     this(message, null)
   }
 }
-
-class InvalidExpressionException(message: String) extends ExpressionException(message)
