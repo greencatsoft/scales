@@ -93,18 +93,4 @@ object ComponentTest extends TestSuite {
       (new MyComponent).context
     }
   }
-
-  It should "throw a IllegalStateException when referenced before the component is attached to a DOM tree" in {
-    @name("component-test-7")
-    class MyComponent extends Component[Div]
-
-    val constructor = ComponentRegistry.register[MyComponent]
-    val component = constructor()
-
-    CustomElements.takeRecords()
-
-    A_[IllegalStateException] should be_thrown_in {
-      component.context
-    }
-  }
 }
