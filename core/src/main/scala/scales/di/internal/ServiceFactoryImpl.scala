@@ -34,16 +34,17 @@ object ServiceFactoryImpl {
             if (rt.typeSymbol.fullName == "scala.Option") {
               val t = rt.typeArgs.head
 
-              q"""override def ${m.name}: Option[$t] = Option(element.getAttribute($attr)).map(_.asInstanceOf[$t])"""
+              q"""override def ${m.name}: Option[$t] = getAttribute[$t]($attr)"""
             } else {
               if (m.isAbstract) {
-                q"""override def ${m.name}: $rt = element.getAttribute($attr).asInstanceOf[$rt]"""
-              } else {
                 q"""
-                  override def ${m.name}: $rt = Option(element.getAttribute($attr)).map(_.asInstanceOf[$rt]) getOrElse {
-                    super.${m.name}
+                  override def ${m.name}: $rt = getAttribute[$rt]($attr) getOrElse {
+                    val name = $attr
+                    throw new IllegalArgumentException(s"Unable to find an attribute with a name '$$name'.")
                   }
                 """
+              } else {
+                q"""override def ${m.name}: $rt = getAttribute[$rt]($attr) getOrElse super.${m.name}"""
               }
             }
         }
