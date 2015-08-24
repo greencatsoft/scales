@@ -254,4 +254,51 @@ object AttributeTest extends TestSuite with LowPriorityImplicits {
 
     component.value should be ("abc")
   }
+
+  "Attribute 'sc-{name}'" should "be evaluated and override a matching attribute '{name}'" in {
+    @name("attribute-test-11")
+    trait MyComponent extends Component[Element] {
+
+      @JSExport
+      val contextVariable = "abc"
+    }
+
+    val constructor = ComponentRegistry.register[MyComponent]
+    val component = constructor()
+
+    val element = component.element
+
+    Option(element.getAttribute("style")) should be (empty)
+
+    document.body.appendChild(component.element)
+
+    element.setAttribute("sc-style", "%{contextVariable}")
+
+    element.getAttribute("style") should be ("abc")
+  }
+
+  It should "be evaluated whenever its value is changed" in {
+    @name("attribute-test-12")
+    trait MyComponent extends Component[Element] {
+
+      @JSExport
+      val variable1 = "abc"
+
+      @JSExport
+      val variable2 = "def"
+    }
+
+    val constructor = ComponentRegistry.register[MyComponent]
+    val component = constructor()
+
+    val element = component.element
+
+    document.body.appendChild(component.element)
+
+    element.setAttribute("sc-style", "%{variable1}")
+    element.getAttribute("style") should be ("abc")
+
+    element.setAttribute("sc-style", "%{variable2}")
+    element.getAttribute("style") should be ("def")
+  }
 }
